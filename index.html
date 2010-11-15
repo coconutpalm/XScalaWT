@@ -11,7 +11,53 @@
     <li>Full support for Eclipse Data Binding</li>
   </ul>
 
-  <p><a href="">XScalaWT Update Site</a></p>
+  <p>How simple?  How about this?:</p>
+
+<pre>
+  implicit def unboxText2Double(t : Text) = java.lang.Double.parseDouble(t.getText())
+  implicit def convertDouble2String(d : Double) = d.toString
+ 
+  var fahrenheit : Text = null
+  var celcius : Text = null
+ 
+  this.contains (
+    _.setLayout(new GridLayout(2, true)),
+ 
+    label("Fahrenheit"),
+    label("Celcius"),
+ 
+    text(fahrenheit = _),
+    text(celcius = _),
+ 
+    button("Fareinheight => Celcius", {e : SelectionEvent => celcius.setText((5.0/9.0) * (fahrenheit - 32)) }),
+    button("Celcius -> Fareinheight", {e : SelectionEvent => fahrenheit.setText((9.0/5.0) * celcius + 32) })
+  )</pre>
+
+  <h2>Documentation</h2>
+
+  <p>This is listed in chronological order and the older documents are
+  a bit out of date right now, but if you read them through, you'll
+  get a good sense for how everything works.  Of course, you can
+  also just pull the source code. :-)</p>
+
+  <ul>
+    <li><a href="http://www.coconut-palm-software.com/the_new_visual_editor/doku.php?id=blog:simplifying_swt_with_scala">Tutorial</a></li>
+    <li><a href="http://www.coconut-palm-software.com/the_new_visual_editor/doku.php?id=blog:more_xscalawt">Simple code example for those who are impatient</a></li>
+    <li><a href="http://www.coconut-palm-software.com/the_new_visual_editor/doku.php?id=blog:xscalawt_stylesheets">Stylesheets tutorial</a></li>
+    <li><a href="http://www.coconut-palm-software.com/the_new_visual_editor/doku.php?id=blog:declarative_data_binding_using_xscalawt">Data binding</a></li>
+  </ul>
+
+  <h2>Download and Build</h2>
+
+  <p>XScalaWT source is maintained on the "gh_pages" branch at GitHub.
+    Current binaries are distributed through the P2/Update site
+    below.</p>
+
+  <p>You can build the latest XScalaWT by pulling the "gh_pages"
+    branch, then running "mvn clean install" using Maven 3 from the
+    "build" directory.</p>
+
+  <p><a href="com.coconut_palm_software.xscalawt.updatesite/target/site">XScalaWT Update Site / Maven-compatible P2 repo</a></p>
 </body>
 </html>
 
