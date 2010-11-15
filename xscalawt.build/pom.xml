@@ -21,11 +21,12 @@
 	</prerequisites>
 
 	<modules>
-		<!-- 
+		<!-- Use this if you want a local target platform rather than the one in the cloud
+		<module>../xscalawt.targetplatform</module>
 		 -->
 		<module>../com.coconut_palm_software.xscalawt</module>
 		<module>../com.coconut_palm_software.xscalawt.feature</module>
-		<module>../xscalawt.targetplatform</module>
+		<module>../com.coconut_palm_software.xscalawt.updatesite</module>
 	</modules>
 
 	<repositories>
@@ -391,7 +392,7 @@
 							<ws>win32</ws>
 							<arch>x86</arch>
 						</environment>
-						<!--
+						<!-- For some reason, adding this breaks the build?
 							<environment> <os>macosx</os> <ws>carbon</ws> <arch>x86</arch>
 							</environment> <environment> <os>macosx</os> <ws>cocoa</ws>
 							<arch>x86_64</arch> </environment>

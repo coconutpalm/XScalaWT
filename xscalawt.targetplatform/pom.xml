@@ -8,8 +8,8 @@
 	    <relativePath>../xscalawt.build/pom.xml</relativePath>
 	</parent>
 
-	<groupId>es.strid</groupId>
-	<artifactId>es.strid.main.rcp.targetplatform</artifactId>
+	<groupId>com.coconut_palm_software</groupId>
+	<artifactId>xscalawt.targetplatform</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Target platform</name>
