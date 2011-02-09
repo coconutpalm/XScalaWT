@@ -10,9 +10,8 @@
  *******************************************************************************/
 package com.coconut_palm_software.xscalawt
 
-import reflect.Manifest
+import reflect.ClassManifest
 import java.lang.reflect._
-import org.eclipse.swt._
 import org.eclipse.swt.events._
 import org.eclipse.swt.graphics._
 import org.eclipse.swt.widgets._
@@ -27,10 +26,10 @@ object XScalaWT {
   /**
    * The manual, "specify everything" syntax.  Useful when none of the convenience methods works.
    * <p>
-   * Note, depends on Manifest[T] which is experimental as-of 2.7.3final (this writing)
+   * Note, depends on ClassManifest[T] which is still experimental.
    */
-  def *[T](style : Int)(setups:(T => Unit)*)(parent:Composite)(implicit manifest : Manifest[T]) = {
-    val controlClass : Class[T] = manifest.erasure.asInstanceOf[Class[T]]
+  def *[T : ClassManifest](style : Int)(setups:(T => Any)*) = { (parent : Composite) =>
+    val controlClass : Class[T] = classManifest[T].erasure.asInstanceOf[Class[T]]
     val constructor = controlClass.getDeclaredConstructor(classOf[Composite], classOf[Int])
     constructor.setAccessible(true)
     val control = constructor.newInstance(parent, style.asInstanceOf[Object]).asInstanceOf[T]
@@ -38,107 +37,107 @@ object XScalaWT {
     control
   }
 
-  // Conveninece methods, one or more per concrete SWT class
+  // Convenience methods, one or more per concrete SWT class
 
-//  def animatedProgress(setups:(AnimatedProgress => Unit)*)(parent : Composite) {
+//  def animatedProgress(setups:(AnimatedProgress => Any)*)(parent : Composite) {
 //    setup(new AnimatedProgress(parent, SWT.BORDER), setups : _*)
 //  }
   
-  def browser(setups:(Browser => Unit)*)(parent : Composite) = {
-    setupAndReturn(new Browser(parent, SWT.NULL), setups : _*)
+  def browser(setups:(Browser => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new Browser(parent, SWT.NONE), setups : _*)
   }
   
-  def button(setups:(Button => Unit)*)(parent : Composite) = {
+  def button(setups:(Button => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Button(parent, SWT.PUSH), setups : _*)
   }
 
-  def cBanner(setups:(CBanner => Unit)*)(parent : Composite) = {
-    setupAndReturn(new CBanner(parent, SWT.NULL), setups : _*)
+  def cBanner(setups:(CBanner => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new CBanner(parent, SWT.NONE), setups : _*)
   }
   
-//  def cCombo(setups:(CCombo => Unit)*)(parent : Composite) = {
+//  def cCombo(setups:(CCombo => Any)*) = { (parent : Composite) =>
 //    setup(new CCombo(parent, SWT.BORDER), setups : _*)
 //  }
   
-  def combo(setups:(Combo => Unit)*)(parent : Composite) = {
+  def combo(setups:(Combo => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Combo(parent, SWT.BORDER), setups : _*)
   }
   
-  def coolBar(setups:(CoolBar => Unit)*)(parent : Composite) = {
-    setupAndReturn(new CoolBar(parent, SWT.NULL), setups : _*)
+  def coolBar(setups:(CoolBar => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new CoolBar(parent, SWT.NONE), setups : _*)
   }
   
-  def cLabel(setups:(CLabel => Unit)*)(parent : Composite) = {
-    setupAndReturn(new CLabel(parent, SWT.NULL), setups : _*)
+  def cLabel(setups:(CLabel => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new CLabel(parent, SWT.NONE), setups : _*)
   }
   
-  def composite(setups:(Composite => Unit)*)(parent : Composite) = {
-    val composite = new Composite(parent, SWT.NULL)
+  def composite(setups:(Composite => Any)*) = { (parent : Composite) =>
+    val composite = new Composite(parent, SWT.NONE)
     composite.setLayout(new GridLayout())
     setups.foreach(setup => setup(composite))
     composite
   }
   
-  def cTabFolder(setups:(CTabFolder => Unit)*)(parent : Composite) = {
-    setupAndReturn(new CTabFolder(parent, SWT.NULL), setups : _*)
+  def cTabFolder(setups:(CTabFolder => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new CTabFolder(parent, SWT.NONE), setups : _*)
   }
   
-  def dateTime(setups:(DateTime => Unit)*)(parent : Composite) = {
+  def dateTime(setups:(DateTime => Any)*) = { (parent : Composite) =>
     setupAndReturn(new DateTime(parent, SWT.BORDER), setups : _*)
   }
   
-  def expandBar(setups:(ExpandBar => Unit)*)(parent : Composite) = {
+  def expandBar(setups:(ExpandBar => Any)*) = { (parent : Composite) =>
     setupAndReturn(new ExpandBar(parent, SWT.V_SCROLL), setups : _*)
   }
   
-//  def glCanvas(data : GLData)(setups:(GLCanvas => Unit)*)(parent:Composite) = {
-//    setup(new GLCanvas(parent, SWT.NULL, data), setups : _*)
+//  def glCanvas(data : GLData)(setups:(GLCanvas => Any)*)(parent:Composite) = {
+//    setup(new GLCanvas(parent, SWT.NONE, data), setups : _*)
 //  }
   
-  def group(setups:(Group => Unit)*)(parent:Composite) = {  
-    val group = new Group(parent, SWT.NULL)  
+  def group(setups:(Group => Any)*)(parent:Composite) = {  
+    val group = new Group(parent, SWT.NONE)  
     group.setLayout(new GridLayout());  
     setups.foreach(setup => setup(group))  
     group
   }
   
-  def label(setups:(Label => Unit)*)(parent:Composite) = {  
-    setupAndReturn(new Label(parent, SWT.NULL), setups : _*)  
+  def label(setups:(Label => Any)*)(parent:Composite) = {  
+    setupAndReturn(new Label(parent, SWT.NONE), setups : _*)  
   }
   
-  def labelSeparator(setups:(Label => Unit)*)(parent:Composite) = {  
+  def labelSeparator(setups:(Label => Any)*)(parent:Composite) = {  
     setupAndReturn(new Label(parent, SWT.SEPARATOR|SWT.HORIZONTAL), setups : _*)  
   }
   
-  def labelSeparatorVertical(setups:(Label => Unit)*)(parent:Composite) = {  
+  def labelSeparatorVertical(setups:(Label => Any)*)(parent:Composite) = {  
     setupAndReturn(new Label(parent, SWT.SEPARATOR|SWT.VERTICAL), setups : _*)  
   }
   
-  def link(setups:(Link => Unit)*)(parent: Composite) = {
-    setupAndReturn(new Link(parent, SWT.NULL), setups : _*)
+  def link(setups:(Link => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new Link(parent, SWT.NONE), setups : _*)
   }
   
-  def list(setups:(List => Unit)*)(parent: Composite) = {
+  def list(setups:(List => Any)*) = { (parent : Composite) =>
     setupAndReturn(new List(parent, SWT.BORDER), setups : _*)
   }
   
-  def progressBar(setups:(ProgressBar => Unit)*)(parent: Composite) = {
-    setupAndReturn(new ProgressBar(parent, SWT.NULL), setups : _*)
+  def progressBar(setups:(ProgressBar => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new ProgressBar(parent, SWT.NONE), setups : _*)
   }
   
-  def sashForm(setups:(SashForm => Unit)*)(parent: Composite) = {
-    setupAndReturn(new SashForm(parent, SWT.NULL), setups : _*)
+  def sashForm(setups:(SashForm => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new SashForm(parent, SWT.NONE), setups : _*)
   }
   
-  def scaleHorizontal(setups:(Scale => Unit)*)(parent: Composite) = {
+  def scaleHorizontal(setups:(Scale => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Scale(parent, SWT.HORIZONTAL), setups : _*)
   }
   
-  def scaleVertical(setups:(Scale => Unit)*)(parent: Composite) = {
+  def scaleVertical(setups:(Scale => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Scale(parent, SWT.VERTICAL), setups : _*)
   }
   
-  private def setupScrolledComposite(parent: Composite, style : Int, setups : (ScrolledComposite => Unit)*) = {
+  private def setupScrolledComposite(parent: Composite, style : Int, setups : (ScrolledComposite => Any)*) = {
     val composite = new ScrolledComposite(parent, style)
     setups.foreach(setup => setup(composite))
     composite.addControlListener(new ControlAdapter() {
@@ -153,23 +152,23 @@ object XScalaWT {
     composite
   }
   
-  def scrolledCompositeVertical(setups: (ScrolledComposite => Unit)*)(parent : Composite) = {
+  def scrolledCompositeVertical(setups: (ScrolledComposite => Any)*) = { (parent : Composite) =>
     setupScrolledComposite(parent, SWT.V_SCROLL, setups : _*)
   }
   
-  def scrolledCompositeHorizontal(setups: (ScrolledComposite => Unit)*)(parent : Composite) = {
+  def scrolledCompositeHorizontal(setups: (ScrolledComposite => Any)*) = { (parent : Composite) =>
     setupScrolledComposite(parent, SWT.H_SCROLL, setups : _*)
   }
   
-  def scrolledCompositeBoth(setups: (ScrolledComposite => Unit)*)(parent : Composite) = {
+  def scrolledCompositeBoth(setups: (ScrolledComposite => Any)*) = { (parent : Composite) =>
     setupScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL, setups : _*)
   }
   
-  def spinner(setups : (Spinner => Unit)*)(parent : Composite) = {
+  def spinner(setups : (Spinner => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Spinner(parent, SWT.BORDER), setups : _*)
   }
   
-  def shell(setups:(Shell => Unit)*) = {
+  def shell(setups:(Shell => Any)*) = {
     val display = Display.getDefault
     val shell = new Shell(display)
     shell.setLayout(new GridLayout());  
@@ -178,7 +177,7 @@ object XScalaWT {
     shell
   }
   
-  def shellNoTrim(setups:(Shell => Unit)*) = {
+  def shellNoTrim(setups:(Shell => Any)*) = {
     val display = Display.getDefault
     val shell = new Shell(display, SWT.NO_TRIM)
     shell.setLayout(new GridLayout());  
@@ -195,65 +194,65 @@ object XScalaWT {
     }
   }
   
-  def sliderHorizontal(setups:(Slider => Unit)*)(parent: Composite) = {
+  def sliderHorizontal(setups:(Slider => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Slider(parent, SWT.HORIZONTAL), setups : _*)
   }
   
-  def sliderVertical(setups:(Slider => Unit)*)(parent: Composite) = {
+  def sliderVertical(setups:(Slider => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Slider(parent, SWT.VERTICAL), setups : _*)
   }
   
-//  def styledText(setups:(StyledText => Unit)*)(parent: Composite) = {
-//    setup(new StyledText(parent, SWT.NULL), setups : _*)
+//  def styledText(setups:(StyledText => Any)*) = { (parent : Composite) =>
+//    setup(new StyledText(parent, SWT.NONE), setups : _*)
 //  }
   
-  def tabFolder(setups:(TabFolder => Unit)*)(parent: Composite) = {
-    setupAndReturn(new TabFolder(parent, SWT.NULL), setups : _*)
+  def tabFolder(setups:(TabFolder => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new TabFolder(parent, SWT.NONE), setups : _*)
   }
   
-  def table(setups:(Table => Unit)*)(parent: Composite) = {
+  def table(setups:(Table => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Table(parent, SWT.BORDER), setups : _*)
   }
   
-//  def tableTree(setups:(TableTree => Unit)*)(parent: Composite) = {
+//  def tableTree(setups:(TableTree => Any)*) = { (parent : Composite) =>
 //    setup(new TableTree(parent, SWT.BORDER), setups : _*)
 //  }
   
-  def text(setups:(Text => Unit)*)(parent:Composite) = {  
+  def text(setups:(Text => Any)*)(parent:Composite) = {  
     setupAndReturn(new Text(parent, SWT.BORDER), setups : _*)  
   }
   
-  def textPasswd(setups:(Text => Unit)*)(parent:Composite) = {  
+  def textPasswd(setups:(Text => Any)*)(parent:Composite) = {  
     setupAndReturn(new Text(parent, SWT.BORDER | SWT.PASSWORD), setups : _*)  
   }
   
-  def toolBar(setups:(ToolBar => Unit)*)(parent: Composite) = {
-    setupAndReturn(new ToolBar(parent, SWT.NULL), setups : _*)
+  def toolBar(setups:(ToolBar => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new ToolBar(parent, SWT.NONE), setups : _*)
   }
   
-  def tree(setups:(Tree => Unit)*)(parent: Composite) = {
+  def tree(setups:(Tree => Any)*) = { (parent : Composite) =>
     setupAndReturn(new Tree(parent, SWT.BORDER), setups : _*)
   }
   
-  def viewForm(setups:(ViewForm => Unit)*)(parent: Composite) = {
+  def viewForm(setups:(ViewForm => Any)*) = { (parent : Composite) =>
     setupAndReturn(new ViewForm(parent, SWT.BORDER), setups : _*)
   }
   
-  def viewFormFlat(setups:(ViewForm => Unit)*)(parent: Composite) = {
+  def viewFormFlat(setups:(ViewForm => Any)*) = { (parent : Composite) =>
     setupAndReturn(new ViewForm(parent, SWT.BORDER | SWT.FLAT), setups : _*)
   }
   
   // Items here
   
-  def tabItem(setups:(TabItem => Unit)*)(parent: Control) = {
-    val tabItem = new TabItem(parent.getParent().asInstanceOf[TabFolder], SWT.NULL)
+  def tabItem(setups:(TabItem => Any)*)= { (parent: Control) =>
+    val tabItem = new TabItem(parent.getParent().asInstanceOf[TabFolder], SWT.NONE)
     tabItem.setControl(parent)
     setups.foreach(setup => setup(tabItem))
     tabItem
   }
   
-  def coolItem(setups:(CoolItem => Unit)*)(parent: Control) = {
-    val coolItem = new CoolItem(parent.getParent().asInstanceOf[CoolBar], SWT.NULL)
+  def coolItem(setups:(CoolItem => Any)*)= { (parent: Control) =>
+    val coolItem = new CoolItem(parent.getParent().asInstanceOf[CoolBar], SWT.NONE)
     val size = parent.computeSize(SWT.DEFAULT, SWT.DEFAULT)
     coolItem.setPreferredSize(coolItem.computeSize(size.x, size.y))
     coolItem.setControl(parent)
@@ -261,8 +260,8 @@ object XScalaWT {
     coolItem
   }
   
-  def expandItem(setups:(ExpandItem => Unit)*)(parent: Control) = {
-    val item = new ExpandItem(parent.getParent().asInstanceOf[ExpandBar], SWT.NULL)
+  def expandItem(setups:(ExpandItem => Any)*)= { (parent: Control) =>
+    val item = new ExpandItem(parent.getParent().asInstanceOf[ExpandBar], SWT.NONE)
     item.setHeight(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT).y)
     item.setControl(parent)
     setups.foreach(setup => setup(item))
@@ -272,152 +271,164 @@ object XScalaWT {
   // Start with any Widget and add children from there...
   
   class WidgetX[W](w : W) {
-    def apply(setups : (W => Unit)*) : W = {
+    def apply(setups : (W => Any)*) : W = {
       setupAndReturn(w, setups : _*)
     }
-    def contains(setups : (W => Unit)*) : W = {
+    def contains(setups : (W => Any)*) : W = {
       setupAndReturn(w, setups : _*)
     }
   }
   
   implicit def widget2XScalaWT[W <: Widget](widget : W) = new WidgetX[W](widget)  
 
-//    (setups:(Browser => Unit)*)
+//    (setups:(Browser => Any)*)
     
+  //
   // Declarative setters here
+  //
   
-  def setText[T <: {def setText(txt:String)}](txt:String)(subject:T) = {  
-    subject.setText(txt)  
-  }
+  private type HasSetImage = { def setImage(image: Image) }
+  private type HasSetText = { def setText(txt: String) }
+
+  implicit def image2setImage[T <: HasSetImage](image: Image): T => Any = Assignments.image_=(image)
   
-  implicit def string2setText[T <: {def setText(s:String)}](txt : String) : T => Unit = {
-    setText[T](txt)_
-  }
+  implicit def string2setText[T <: HasSetText](txt: String): T => Any = Assignments.caption_=(txt)
   
-  def setImage[T <: {def setImage(image:Image)}](image : Image)(subject:T) = {
-    subject.setImage(image)
-  }
+  /**
+   * Import Assignments._ if you want to be able to use lines like "layout = new FillLayout()", "minimum = 10", etc.
+   * in your widget setup lines, instead of "_.setLayout(new FillLayout())", "_.setMinimum(10)", etc.
+   * The good thing is that assignment looks nicer; the bad thing is that it fills the namespace with the
+   * SWT widget properties defined here.
+   */
+  object Assignments {
+
+    private def nothing: Nothing = error("this method is not meant to be called")
+
+     // cannot use text and text_= as they are already builders for the Text widget
+    def caption(implicit ev: Nothing) = nothing
+    def caption_=[T <: HasSetText](txt: String) =
+      (subject: T) => subject.setText(txt)
   
-  implicit def image2setImage[T <: {def setImage(image:Image)}](image : Image)(subject:T) = {
-    subject.setImage(image)
+    def image(implicit ev: Nothing) = nothing
+    def image_=[T <: HasSetImage](image: Image) =
+      (subject: T) => subject.setImage(image)
+
+    def control(implicit ev: Nothing) = nothing
+    def control_=[T <: { def setControl(control: Control) }](control: Control) =
+      (subject: T) => subject.setControl(control)
+
+    def background(implicit ev: Nothing) = nothing
+    def background_=[T <: { def setBackground(c: Color) }](c: Color) =
+      (subject: T) => subject.setBackground(c)
+
+    def foreground(implicit ev: Nothing) = nothing
+    def foreground_=[T <: { def setForeground(c: Color) }](c: Color) =
+      (subject: T) => subject.setForeground(c)
+
+    def layout(implicit ev: Nothing) = nothing
+    def layout_=[T <: { def setLayout(layout: Layout) }](layout: Layout) =
+      (subject: T) => subject.setLayout(layout)
+  
+    def layoutData(implicit ev: Nothing) = nothing
+    def layoutData_=[T <: { def setLayoutData(data: Object) }](data: Object) =
+      (subject: T) => subject.setLayoutData(data)
+  
+    def minimum(implicit ev: Nothing) = nothing
+    def minimum_=[T <: { def setMinimum(value: Int) }](value: Int) =
+      (subject: T) => subject.setMinimum(value)
+  
+    def maximum(implicit ev: Nothing) = nothing
+    def maximum_=[T <: { def setMaximum(value: Int) }](value: Int) =
+      (subject: T) => subject.setMaximum(value)
+  
+    def selection(implicit ev: Nothing) = nothing
+    def selection_=[T <: { def setSelection(value: Int) }](value: Int) =
+      (subject: T) => subject.setSelection(value)
   }
 
-  def setControl[T <: {def setControl(control:Control)}](control : Control)(subject:T) = {
-    subject.setControl(control)
-  }
-
-  def setBackground[T <: {def setBackground(c : Color)}](c : Color)(subject:T) = {  
-    subject.setBackground(c)  
-  }
-
-  def setForeground[T <: {def setForeground(c : Color)}](c : Color)(subject:T) = {  
-    subject.setForeground(c)  
-  }
-
-  def setLayout[T <: {def setLayout(layout : Layout)}](layout : Layout)(subject:T) = {  
-    subject.setLayout(layout)  
-  }
-
-  def setLayoutData[T <: {def setLayoutData(data : Object)}](data : Object)(subject:T) = {  
-    subject.setLayoutData(data)  
-  }
-  
-  def setMinimum[T <: {def setMinimum(value : Int)}](value : Int)(subject:T) = {
-    subject.setMinimum(value)
-  }
-  
-  def setMaximum[T <: {def setMaximum(value : Int)}](value : Int)(subject:T) = {
-    subject.setMaximum(value)
-  }
-  
-  def setSelection[T <: {def setSelection(value : Int)}](value : Int)(subject:T) = {
-    subject.setSelection(value)
-  }
-  
+  //
   // Event handling here
-  
+  //
+    
   // SelectionListener-------------------------------------------------------------
+    
+  private type AddSelectionListener = { def addSelectionListener(l : SelectionListener) }
   
-  def addSelectionListener[T <: {def addSelectionListener(l : SelectionListener)}](l : SelectionListener)(subject:T) = {
-    subject.addSelectionListener(l)
+  private class SelectionListenerForwarder(func: SelectionEvent => Any) extends SelectionAdapter {
+    override def widgetSelected(e : SelectionEvent) = func(e)
+    override def widgetDefaultSelected(e : SelectionEvent) = func(e)
   }
   
-  private class SelectionListenerForwarder(l : (SelectionEvent => Unit)) extends SelectionAdapter {
-    override def widgetSelected(e : SelectionEvent) = l(e)
-    override def widgetDefaultSelected(e : SelectionEvent) = l(e)
-  }
+  def addSelectionListener[T <: AddSelectionListener](l: SelectionListener) =
+    (subject: T) => subject.addSelectionListener(l)
+    
+  implicit def selectionFn2addSelectionListener[T <: AddSelectionListener](func: SelectionEvent => Any) =
+    addSelectionListener[T](func)
   
-  def addSelectionListener[T <: {def addSelectionListener(l : SelectionListener)}](l : (SelectionEvent => Unit))(subject:T) = {
-    subject.addSelectionListener(new SelectionListenerForwarder(l))
-  }
-  
-  implicit def selectionFn2addSelectionListener[T <: {def addSelectionListener(l : SelectionListener)}](l : (SelectionEvent => Unit)) = {
-    addSelectionListener[T](l)_
-  }
-  
-  implicit def func2SelectionListener[T <: { def apply(e : SelectionEvent) }](func : T) = new SelectionAdapter() {
-    override def widgetSelected(e : SelectionEvent) = func.apply(e) 
-  }
+  implicit def func2SelectionListener(func: SelectionEvent => Any): SelectionListener =
+	new SelectionListenerForwarder(func)
   
   // MouseListener-----------------------------------------------------------------
 
-  def addMouseListener[T <: {def addMouseListener(l : MouseListener)}](l : MouseListener)(subject:T) = {
-    subject.addMouseListener(l)
-  }
+  private type AddMouseListener = { def addMouseListener(l : MouseListener) }
   
-  class _MouseListenerForwarder(l : (MouseEvent => Unit)) extends MouseAdapter {
-    override def mouseDown(e : MouseEvent) = l(e)
+  private class MouseListenerForwarder(func: MouseEvent => Any) extends MouseAdapter {
+	override def mouseDown(e : MouseEvent) = func(e)
   }
+
+  def addMouseListener[T <: AddMouseListener](l: MouseListener) = 
+	(subject:T) => subject.addMouseListener(l)
   
-  def addMouseListener[T <: {def addMouseListener(l : MouseListener)}](l : (MouseEvent => Unit))(subject:T) = {
-    subject.addMouseListener(new _MouseListenerForwarder(l))
-  }
+  implicit def mouseFunc2addMouseListener[T <: AddMouseListener](func: MouseEvent => Any) =
+	addMouseListener[T](func)
   
-  implicit def mouseFunc2addMouseListener[T <: {def addMouseListener(l : MouseListener)}](func : (MouseEvent => Unit))(subject:T) {
-    subject.addMouseListener(new _MouseListenerForwarder(func))
-  }
-  
-  implicit def func2MouseListener[T <: (MouseEvent => Unit)](func : T) = new _MouseListenerForwarder(func)
+  implicit def func2MouseListener(func: MouseEvent => Any): MouseListener =
+	  new MouseListenerForwarder(func)
   
   // ModifyListener-----------------------------------------------------------------
+	
+  private type AddModifyListener = { def addModifyListener(l: ModifyListener) }
   
-  def addModifyListener[T <: {def addModifyListener(l : ModifyListener)}](l : ModifyListener)(subject : T) = 
-    subject.addModifyListener(l)
+  def addModifyListener[T <: AddModifyListener](l: ModifyListener) =
+	(subject : T) => subject.addModifyListener(l)
   
-  class _ModifyListenerForwarder(l : (ModifyEvent => Unit)) extends ModifyListener {
-    override def modifyText(e : ModifyEvent) = l(e)
+  private class ModifyListenerForwarder(func: ModifyEvent => Any) extends ModifyListener {
+    override def modifyText(e: ModifyEvent) = func(e)
   }
   
-  implicit def modifyFn2addModifyListener[T <: {def addModifyListener(l : ModifyListener)}](l : (ModifyEvent => Unit))(subject : T) =
-    subject.addModifyListener(new _ModifyListenerForwarder(l))
+  implicit def modifyFn2addModifyListener[T <: AddModifyListener](func: ModifyEvent => Any) = 
+	addModifyListener[T](func)
   
-  implicit def func2ModifyListener[T <: (ModifyEvent => Unit)](func : T) : ModifyListener = 
-    new _ModifyListenerForwarder(func)
+  implicit def func2ModifyListener(func: ModifyEvent => Any): ModifyListener = 
+    new ModifyListenerForwarder(func)
   
   // TraverseListener--------------------------------------------------------------
   
-  def addTraverseListener[T <: {def addTraverseListener(l : TraverseListener)}](l : TraverseListener)(subject : T) = {
-    subject.addTraverseListener(l)
+  private type AddTraverseListener = { def addTraverseListener(l: TraverseListener) }
+  
+  def addTraverseListener[T <: AddTraverseListener](l: TraverseListener) =
+	(subject: T) => subject.addTraverseListener(l)
+  
+  private class TraverseListenerForwarder(func: TraverseEvent => Any) extends TraverseListener {
+    override def keyTraversed(e : TraverseEvent) = func(e)
   }
   
-  class _TraverseListenerForwarder(l : (TraverseEvent => Unit)) extends TraverseListener {
-    override def keyTraversed(e : TraverseEvent) = l(e)
-  }
+  implicit def modifyFn2addTraverseListener[T <: AddTraverseListener](func: TraverseEvent => Any) =
+	addTraverseListener[T](func)
   
-  implicit def modifyFn2addTraverseListener[T <: {def addTraverseListener(l : TraverseListener)}](l : (TraverseEvent => Unit))(subject : T) =
-    subject.addTraverseListener(new _TraverseListenerForwarder(l))
+  implicit def func2TraverseListener(func: TraverseEvent => Any): TraverseListener = 
+    new TraverseListenerForwarder(func)
   
-  implicit def func2TraverseListener[T <: (TraverseEvent => Unit)](func : T) : TraverseListener = 
-    new _TraverseListenerForwarder(func)
+    
+  // 
+  // Other convenience methods
+  //
   
-  // Convenience methods
   def display = Display.getDefault
+
   implicit def int2Color(swtColorConstant : Int) = display.getSystemColor(swtColorConstant)
 
-  class RunnableForwarder(f : => Unit) extends Runnable {
-    override def run() = f
-  }
-  implicit def func2Runnable(f : => Unit) = new RunnableForwarder(f)
+  implicit def func2Runnable(f : => Any) = new Runnable { override def run() = f }
 
 }
 

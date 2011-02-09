@@ -24,10 +24,10 @@ object XScalaWTAPI {
    * 
    * T is the control class
    * @param control the SWT Control
-   * @param setups A vararg list of setup functions of the type (T => Unit)
+   * @param setups A vararg list of setup functions of the type (T => Any)
    * @returns T the T that was set up
    */
-  def setupAndReturn[T](control : T, setups:(T => Unit)*) : T = {
+  def setupAndReturn[T](control : T, setups:(T => Any)*) : T = {
     setups.foreach(setup => setup(control))
 
     if (control.isInstanceOf[Composite]) {

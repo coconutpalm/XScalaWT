@@ -8,9 +8,11 @@
  * Contributors:
  *     David Orme - initial API and implementation
  *******************************************************************************/
-package com.coconut_palm_software.xscalawt.examples
+package com.coconut_palm_software.xscalawt
+package examples
 
-import com.coconut_palm_software.xscalawt.XScalaWT._
+import XScalaWT._
+import Assignments._
 
 import org.eclipse.swt.layout._
 import org.eclipse.swt.widgets._
@@ -32,7 +34,7 @@ object SWTControls {
   def main(args : Array[String]) : Unit = {
     
     val window = shell("SWT Controls",
-      setLayout(new FillLayout()),
+      layout = new FillLayout(),
       
       tabFolder (
         scrolledCompositeVertical (
@@ -45,35 +47,35 @@ object SWTControls {
               link("http://www.google.com")
             ),
             progressBar(
-              setMinimum(0),
-              setMaximum(50),
-              setSelection(20)
+              minimum = 0,
+              maximum = 50,
+              selection = 20
             ),
 //            animatedProgress(
 //              _.start()
 //            ),
             scaleHorizontal(
-              setMinimum(0),
-              setMaximum(30),
-              setSelection(5)
+              minimum = 0,
+              maximum = 30,
+              selection = 5
             ),
             scaleVertical(
-              setMinimum(0),
-              setMaximum(40),
-              setSelection(5)
+              minimum = 0,
+              maximum = 40,
+              selection = 5
             ),
             cLabel("Hello, CLabel"),
 //            cCombo(),
             combo(),
             dateTime(),
             spinner(
-              setSelection(3)
+              selection = 3
             ),
             list(
               _.add("One"),
               _.add("Two"),
               _.add("Three"),
-              setSelection(1)
+              selection = 1
             ),
             text("Edit me, please"),
             sliderHorizontal(),
@@ -87,9 +89,9 @@ object SWTControls {
           composite (
             label("Some progress meters"),
             progressBar(
-              setMinimum(0),
-              setMaximum(50),
-              setSelection(20)
+              minimum = 0,
+              maximum = 50,
+              selection = 20
             ),
 //            animatedProgress(
 //              _.start()
@@ -103,13 +105,13 @@ object SWTControls {
           tabItem("CoolBar"),
           
           coolBar(
-            setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false)),
+            layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false),
             
             button("one", coolItem()),
             button("two", coolItem()),
             button("three", coolItem()),
             composite(
-              setLayout(new RowLayout()),
+              layout = new RowLayout()),
               button("four"),
               button("five"),
               button("six"),
@@ -126,7 +128,7 @@ object SWTControls {
           button("Pane 2"),
           button("Pane 3"),
           
-          _.setWeights(Array(30, 40, 30))
+          _.setWeights(Array(30, 40, 30)
         ),
         
         browser (

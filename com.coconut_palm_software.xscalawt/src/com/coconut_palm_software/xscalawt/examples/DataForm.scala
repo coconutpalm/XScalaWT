@@ -8,10 +8,12 @@
  * Contributors:
  *     David Orme - initial API and implementation
  *******************************************************************************/
-package com.coconut_palm_software.xscalawt.examples
+package com.coconut_palm_software.xscalawt
+package examples
 
-import com.coconut_palm_software.xscalawt.XScalaWT._
-import com.coconut_palm_software.xscalawt.XScalaWTForms._
+import XScalaWT._
+import XScalaWTForms._
+import Assignments._
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets._
@@ -34,24 +36,23 @@ object DataForm {
                      "Cook pizza")
     
     val window = shell("Data form example",
-      setLayout(new FillLayout()),
+      layout = new FillLayout(),
 
       scrolledCompositeVertical (
         compositePreferredWidthFillsParent (
-          _.setLayout(new GridLayout())
+          layout = new GridLayout(),
           
-//          dataCompositesForAll(tasks) { 
-//            (composite, task) =>
-//            composite.contains (
-//              _.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL)),
-//              setLayout(new GridLayout(2, false)),
-//              
-//              label(task),
-//              labelSeparator (
-//                setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL))
-//              )
-//            )
-//          }
+          dataCompositesForAll(tasks) { (composite, task) =>
+            composite.contains (
+              layoutData = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL),
+              layout = new GridLayout(2, false),
+              
+              label(task),
+              labelSeparator (
+                layoutData = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL)
+              )
+            )
+          }
           
         )
       )

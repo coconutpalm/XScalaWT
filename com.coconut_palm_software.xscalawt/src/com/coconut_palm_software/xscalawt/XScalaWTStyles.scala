@@ -10,7 +10,7 @@
  *******************************************************************************/
 package com.coconut_palm_software.xscalawt
 
-import scala.reflect.Manifest
+import reflect.ClassManifest
 import org.eclipse.swt.widgets.Widget
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
@@ -33,7 +33,7 @@ object XScalaWTStyles {
    *    _.setBackground(green)
    * )
    */
-  private class TypedStyle[T <: Widget](val styleType: java.lang.Class[T], selectors:(T => Unit)*) 
+  private class TypedStyle[T <: Widget](val styleType: java.lang.Class[T], selectors:(T => Any)*) 
     extends Style 
   {
     def apply(control : Widget) = {
@@ -46,8 +46,8 @@ object XScalaWTStyles {
   /**
    * Define a style that applies for all subclasses of a particular type
    */
-  def $[T <: Widget](selectorList:(T => Unit)*)(implicit manifest : Manifest[T]) : Style = {
-    new TypedStyle[T](manifest.erasure.asInstanceOf[Class[T]], selectorList : _*)
+  def $[T <: Widget : ClassManifest](selectorList:(T => Any)*) : Style = {
+    new TypedStyle[T](classManifest[T].erasure.asInstanceOf[Class[T]], selectorList : _*)
   }
 
   /**
@@ -56,7 +56,7 @@ object XScalaWTStyles {
    *   _.setEnabled(false)
    * )
    */
-  private class NamedStyle[T <: Widget](val name : String, override val styleType: java.lang.Class[T], val selectors:(T => Unit)*) 
+  private class NamedStyle[T <: Widget](val name : String, override val styleType: java.lang.Class[T], val selectors:(T => Any)*) 
     extends TypedStyle (styleType, selectors : _*)
   {
     override def apply(control : Widget) = {
@@ -72,8 +72,8 @@ object XScalaWTStyles {
    * 
    * Widget#setStyleClass
    */
-  def $class[T <: Widget](name : String)(selectorList:(T => Unit)*)(implicit manifest : Manifest[T]) : Style = {
-    new NamedStyle[T](name, manifest.erasure.asInstanceOf[Class[T]], selectorList : _*)
+  def $class[T <: Widget : ClassManifest](name : String)(selectorList:(T => Any)*) : Style = {
+    new NamedStyle[T](name, classManifest[T].erasure.asInstanceOf[Class[T]], selectorList : _*)
   }
   
   /**

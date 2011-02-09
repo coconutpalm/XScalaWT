@@ -35,15 +35,15 @@ object XScalaWTForms {
    * A Composite intended for use within a vertical ScrolledComposite that knows how to fill the
    * entre horizontal space alotted.
    */
-  def compositePreferredWidthFillsParent(setups:(CompositeFillHorizontal => Unit)*)(parent : Composite) = {
-    setupAndReturn(new CompositeFillHorizontal(parent, SWT.NULL), setups : _*)
+  def compositePreferredWidthFillsParent(setups:(CompositeFillHorizontal => Any)*) = { (parent : Composite) =>
+    setupAndReturn(new CompositeFillHorizontal(parent, SWT.NONE), setups : _*)
   }
 
   
-  def dataCompositesForAll[T](collection : Iterable[T])(content : ( (Composite, T) => Unit))(parent : Composite) : Composite = {
+  def dataCompositesForAll[T](collection : Iterable[T])(content : (Composite, T) => Any) = { (parent : Composite) =>
     collection.foreach {
       element =>
-      val row = new Composite(parent, SWT.NULL)
+      val row = new Composite(parent, SWT.NONE)
       content(row, element)
     }
     parent

@@ -8,9 +8,10 @@
  * Contributors:
  *     David Orme - initial API and implementation
  *******************************************************************************/
-package com.coconut_palm_software.xscalawt.examples.binding
+package com.coconut_palm_software.xscalawt
+package examples.binding
 
-import scala.reflect.BeanProperty
+import reflect.BeanProperty
 
 class LoginViewModel {
   @BeanProperty

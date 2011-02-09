@@ -8,10 +8,12 @@
  * Contributors:
  *     David Orme - initial API and implementation
  *******************************************************************************/
-package com.coconut_palm_software.xscalawt.examples
+package com.coconut_palm_software.xscalawt
+package examples
 
-import com.coconut_palm_software.xscalawt.XScalaWT._
-import com.coconut_palm_software.xscalawt.XScalaWTStyles._
+import XScalaWT._
+import XScalaWTStyles._
+import Assignments._
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets._
@@ -26,36 +28,36 @@ object LoginBoxStyled {
 
     object loginStyles extends Stylesheet(
 	  $[Control] (
-	    setBackground(SWT.COLOR_WHITE)
+	    background = SWT.COLOR_WHITE
 	  ),
 	  
 	  $class[Control](INVALID_INPUT) (
-	    setForeground(SWT.COLOR_RED)
+	    foreground = SWT.COLOR_RED
 	  )
 	)
     
     val window = shell("Please log in",
       group("User information",
-        setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false)),
-        setLayout(new GridLayout(1, false)),
+        layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false),
+        layout = new GridLayout(1, false),
       
         label("Username"),
         text (
-          setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false))
+          layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false)
         ),
 
         label(""),
 
         label("Password", passwordLabel = _),
         textPasswd (
-          setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false))
+          layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false)
         )
       ),
       
       // OK/Cancel buttons
       composite (
-        setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false)),
-        setLayout(new GridLayout(2, true)),
+        layoutData = new GridData(SWT.CENTER, SWT.CENTER, false, false),
+        layout = new GridLayout(2, true),
 
         button("OK", { e : SelectionEvent => passwordLabel.setStyleClass(INVALID_INPUT) }),
         button("Cancel", { e : SelectionEvent => e.widget.asInstanceOf[Button].getShell.close() } )

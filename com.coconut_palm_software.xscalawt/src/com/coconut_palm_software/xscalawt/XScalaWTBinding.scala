@@ -10,11 +10,13 @@
  *******************************************************************************/
 package com.coconut_palm_software.xscalawt
 
-import org.eclipse.swt.widgets._
-import org.eclipse.swt.SWT
+import java.beans.PropertyChangeListener
 
+import org.eclipse.swt.SWT
+import org.eclipse.swt.widgets._
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.beans.BeansObservables
+import org.eclipse.core.databinding.beans.PojoObservables
 import org.eclipse.jface.databinding.swt.SWTObservables
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.core.databinding.DataBindingContext
@@ -31,9 +33,9 @@ object XScalaWTBinding {
    * realm set.
    * 
    * @param realm The realm to set as the default
-   * @param f A function (f : => Unit) to execute with realm set
+   * @param f A function (f : => Any) to execute with realm set
    */
-  def runWithRealm(realm : Realm)(f : => Unit) =
+  def runWithRealm(realm : Realm)(f : => Any) =
     Realm.runWithDefault(realm, new Runnable() {
       override def run() = f
     })
@@ -42,9 +44,9 @@ object XScalaWTBinding {
    * Set the default data biding threading realm and run a function with that 
    * realm set.
    * 
-   * @param f A function (f : => Unit) to execute with the SWT default realm set
+   * @param f A function (f : => Any) to execute with the SWT default realm set
    */
-  def runWithDefaultRealm(f : => Unit) =
+  def runWithDefaultRealm(f : => Any) =
     Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault), new Runnable() {
       override def run() = f
     })
@@ -54,9 +56,9 @@ object XScalaWTBinding {
    * realm set.
    * 
    * @param realm The SWT Display whose realm should be set
-   * @param f A function (f : => Unit) to execute with realm set
+   * @param f A function (f : => Any) to execute with realm set
    */
-  def runWithSWTRealm(display : Display)(f : => Unit) =
+  def runWithSWTRealm(display : Display)(f : => Any) =
     Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
       override def run() = f
     })
@@ -65,30 +67,59 @@ object XScalaWTBinding {
    * Associate a data binding context with this level of the containership 
    * hierarchy and all children.
    */
-  def dataBindingContext(setups:(DataBindingContext => Unit)*)(parent: Control) = {
+  def dataBindingContext(setups:(DataBindingContext => Any)*)(parent: Control) = {
     val dbc = new DataBindingContext()
     parent.setData(DBC_KEY, dbc)
     setupAndReturn(dbc, setups : _*)
   }
 
-  class BeanObservable(bean : Object) {
+  class BeanObservable(bean: Object) {
     /**
      * Convert a property of this object into a JavaBean observable value.
-     * 
+     *
      * @param property a Symbol naming the property to observe
      * @return An IObservableValue on the specified property of the receiver
      */
-    def -->(property : Symbol) = BeansObservables.observeValue(bean, property.name)
-    
+    def -->(property: Symbol) = BeansObservables.observeValue(bean, property.name)
+
     /**
      * Convert a property of this object into a JavaBean observable list.
-     * 
+     *
      * @param property a Symbol naming the property to observe
      * @return An IObservableList on the specified property of the receiver
      */
-    def -->>(property : Symbol) = BeansObservables.observeList(Realm.getDefault(), bean, property.name)
+    def -->>(property: Symbol) = BeansObservables.observeList(Realm.getDefault(), bean, property.name)
   }
-  implicit def objectToBeanObservableValue(bean : Object) = new BeanObservable(bean)
+
+  class PojoObservable(pojo: Object) {
+    /**
+     * Convert a property of this object into a POJO observable value.
+     *
+     * @param property a Symbol naming the property to observe
+     * @return An IObservableValue on the specified property of the receiver
+     */
+    def -->(property: Symbol) = PojoObservables.observeValue(pojo, property.name)
+
+    /**
+     * Convert a property of this object into a POJO observable list.
+     *
+     * @param property a Symbol naming the property to observe
+     * @return An IObservableList on the specified property of the receiver
+     */
+    def -->>(property: Symbol) = PojoObservables.observeList(Realm.getDefault(), pojo, property.name)
+
+  }
+
+  /**
+   * Used to determine whether to observe an object as a BeanObservable or PojoObservable
+   */
+  private type HasBeanPropertyChangeSupport = {
+    def addPropertyChangeListener(l: PropertyChangeListener): Unit
+    def removePropertyChangeListener(l: PropertyChangeListener): Unit
+  }
+  
+  implicit def objectToBeanObservableValue[T <: HasBeanPropertyChangeSupport](bean: T) = new BeanObservable(bean)
+  implicit def objectToPojoObservableValue(pojo: Object) = new PojoObservable(pojo)
 
   private def findDBC(c : Control) : DataBindingContext = {
     if (c == null) return new DataBindingContext()

@@ -8,15 +8,16 @@
  * Contributors:
  *     David Orme - initial API and implementation
  *******************************************************************************/
-package com.coconut_palm_software.xscalawt.examples.binding
+package com.coconut_palm_software.xscalawt
+package examples.binding
 
 import org.eclipse.swt.widgets.Display
 
 import org.eclipse.jface.databinding.swt.SWTObservables
 import org.eclipse.core.databinding.observable.Realm
 
-import com.coconut_palm_software.xscalawt.XScalaWT._
-import com.coconut_palm_software.xscalawt.XScalaWTBinding._
+import XScalaWT._
+import XScalaWTBinding._
 
 object DataBindingMain {
   def main(args : Array[String]) = {
