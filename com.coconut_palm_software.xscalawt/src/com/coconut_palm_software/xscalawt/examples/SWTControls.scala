@@ -111,7 +111,7 @@ object SWTControls {
             button("two", coolItem()),
             button("three", coolItem()),
             composite(
-              layout = new RowLayout()),
+              layout = new RowLayout(),
               button("four"),
               button("five"),
               button("six"),
@@ -128,7 +128,7 @@ object SWTControls {
           button("Pane 2"),
           button("Pane 3"),
           
-          _.setWeights(Array(30, 40, 30)
+          _.setWeights(Array(30, 40, 30))
         ),
         
         browser (
