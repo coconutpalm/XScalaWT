@@ -6,7 +6,7 @@
     <artifactId>com.coconut_palm_software.xscalawt.lib</artifactId>
     <groupId>com.coconut_palm_software</groupId>
     <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../xscalawt.build/pom.xml</relativePath>
+    <relativePath>../xscalawt.releng/pom.xml</relativePath>
   </parent>
   <groupId>com.coconut_palm_software</groupId>
   <artifactId>site</artifactId>
