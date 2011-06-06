@@ -1,0 +1,5 @@
+<!-- We want something like this, but in Scala -->
+<composite>
+   <layout x:class="fillLayout"/>
+   <label text="Hello, world"/>
+</composite>
