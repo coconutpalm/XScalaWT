@@ -9,7 +9,7 @@
     <relativePath>../xscalawt.releng/pom.xml</relativePath>
   </parent>
   <groupId>com.coconut_palm_software</groupId>
-  <artifactId>site</artifactId>
+  <artifactId>com.coconut_palm_software.xscalawt.site</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>eclipse-update-site</packaging>
 </project>
