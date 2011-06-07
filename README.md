@@ -1,0 +1,1 @@
+To build XScalaWT, run `mvn clean install` from the `xscalawt.releng` directory using Maven 3. It will create a p2 repository in `com.coconut_palm_software.xscalawt.site/target`. See http://pieceoftheloaf.github.com/XScalaWT/ for more details.
