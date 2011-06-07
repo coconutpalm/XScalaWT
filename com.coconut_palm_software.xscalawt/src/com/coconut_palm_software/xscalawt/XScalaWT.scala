@@ -354,9 +354,10 @@ object XScalaWT {
     
   private type AddSelectionListener = { def addSelectionListener(l : SelectionListener) }
   
-  private class SelectionListenerForwarder(func: SelectionEvent => Any) extends SelectionAdapter {
-    override def widgetSelected(e : SelectionEvent) = func(e)
-    override def widgetDefaultSelected(e : SelectionEvent) = func(e)
+  // can't use default as argument name
+  private class SelectionListenerForwarder(normal: SelectionEvent => Any, defaultSelected: SelectionEvent => Any) extends SelectionListener {
+    override def widgetSelected(e : SelectionEvent) = normal(e)
+    override def widgetDefaultSelected(e : SelectionEvent) = defaultSelected(e)
   }
   
   def addSelectionListener[T <: AddSelectionListener](l: SelectionListener) =
@@ -364,49 +365,58 @@ object XScalaWT {
     
   implicit def onSelection[T <: AddSelectionListener](func: SelectionEvent => Any) =
     addSelectionListener[T](func)
+
+  def onSelection[T <: AddSelectionListener](normal: SelectionEvent => Any, defaultSelected: SelectionEvent => Any) =
+    addSelectionListener[T](new SelectionListenerForwarder(normal, defaultSelected))
     
   // can't be => Any, or we lose type inference
   def onSelection[T <: AddSelectionListener](func: => Unit) =
     addSelectionListener[T]((e: SelectionEvent) => func)
   
   implicit def func2SelectionListener(func: SelectionEvent => Any): SelectionListener =
-	  new SelectionListenerForwarder(func)
+    new SelectionListenerForwarder(func, func)
   
   // MouseListener-----------------------------------------------------------------
 
   private type AddMouseListener = { def addMouseListener(l : MouseListener) }
   
-  private class MouseListenerForwarder(func: MouseEvent => Any) extends MouseAdapter {
-	  override def mouseDown(e : MouseEvent) = func(e)
+  private class MouseListenerForwarder(doubleClick: MouseEvent => Any, down: MouseEvent => Any, up: MouseEvent => Any) extends MouseListener {
+    override def mouseDoubleClick(e : MouseEvent) = doubleClick(e)
+    override def mouseDown(e : MouseEvent) = down(e)
+    override def mouseUp(e : MouseEvent) = up(e)
   }
 
   def addMouseListener[T <: AddMouseListener](l: MouseListener) = 
-	  (subject:T) => subject.addMouseListener(l)
+    (subject:T) => subject.addMouseListener(l)
   
+  def onMouse[T <: AddMouseListener](doubleClick: MouseEvent => Any = ignore, down: MouseEvent => Any = ignore, up: MouseEvent => Any = ignore) =
+    addMouseListener[T](new MouseListenerForwarder(doubleClick, down, up))
+
+  // since we often only need to handle mouse down
   implicit def onMouseDown[T <: AddMouseListener](func: MouseEvent => Any) =
-	  addMouseListener[T](func)
-	  
+    addMouseListener[T](func)
+    
   def onMouseDown[T <: AddMouseListener](func: => Unit) =
     addMouseListener[T]((e: MouseEvent) => func)
   
   implicit def func2MouseListener(func: MouseEvent => Any): MouseListener =
-	  new MouseListenerForwarder(func)
+    new MouseListenerForwarder(ignore, func, ignore)
   
   // ModifyListener-----------------------------------------------------------------
-	
+  
   private type AddModifyListener = { def addModifyListener(l: ModifyListener) }
   
   def addModifyListener[T <: AddModifyListener](l: ModifyListener) =
-	  (subject : T) => subject.addModifyListener(l)
+    (subject : T) => subject.addModifyListener(l)
   
   private class ModifyListenerForwarder(func: ModifyEvent => Any) extends ModifyListener {
     override def modifyText(e: ModifyEvent) = func(e)
   }
   
   implicit def onModify[T <: AddModifyListener](func: ModifyEvent => Any) = 
-	  addModifyListener[T](func)
-	  
-	def onModify[T <: AddModifyListener](func: => Unit) = 
+    addModifyListener[T](func)
+    
+  def onModify[T <: AddModifyListener](func: => Unit) = 
     addModifyListener[T]((e: ModifyEvent) => func)
   
   implicit def func2ModifyListener(func: ModifyEvent => Any): ModifyListener = 
@@ -417,22 +427,325 @@ object XScalaWT {
   private type AddTraverseListener = { def addTraverseListener(l: TraverseListener) }
   
   def addTraverseListener[T <: AddTraverseListener](l: TraverseListener) =
-	  (subject: T) => subject.addTraverseListener(l)
+    (subject: T) => subject.addTraverseListener(l)
   
   private class TraverseListenerForwarder(func: TraverseEvent => Any) extends TraverseListener {
     override def keyTraversed(e : TraverseEvent) = func(e)
   }
   
   implicit def onTraverse[T <: AddTraverseListener](func: TraverseEvent => Any) =
-	  addTraverseListener[T](func)
-	  
-	def onTraverse[T <: AddTraverseListener](func: => Unit) =
+    addTraverseListener[T](func)
+    
+  def onTraverse[T <: AddTraverseListener](func: => Unit) =
     addTraverseListener[T]((e: TraverseEvent) => func)
   
   implicit def func2TraverseListener(func: TraverseEvent => Any): TraverseListener = 
     new TraverseListenerForwarder(func)
   
+  // ArmListener-----------------------------------------------------------------
+  
+  private type AddArmListener = { def addArmListener(l: ArmListener) }
+  
+  def addArmListener[T <: AddArmListener](l: ArmListener) =
+    (subject : T) => subject.addArmListener(l)
+  
+  private class ArmListenerForwarder(func: ArmEvent => Any) extends ArmListener {
+    override def widgetArmed(e: ArmEvent) = func(e)
+  }
+  
+  implicit def onArm[T <: AddArmListener](func: ArmEvent => Any) = 
+    addArmListener[T](func)
     
+  def onArm[T <: AddArmListener](func: => Unit) = 
+    addArmListener[T]((e: ArmEvent) => func)
+  
+  implicit def func2ArmListener(func: ArmEvent => Any): ArmListener = 
+    new ArmListenerForwarder(func)
+    
+  // ControlListener-----------------------------------------------------------------
+  
+  private type AddControlListener = { def addControlListener(l: ControlListener) }
+  
+  def addControlListener[T <: AddControlListener](l: ControlListener) =
+    (subject : T) => subject.addControlListener(l)
+  
+  private class ControlListenerForwarder(moved: ControlEvent => Any, resized: ControlEvent => Any) extends ControlListener {
+    override def controlMoved(e: ControlEvent) = moved(e)
+    override def controlResized(e: ControlEvent) = resized(e)
+  }
+  
+  def onControl[T <: AddControlListener](moved: ControlEvent => Any = ignore, resized: ControlEvent => Any = ignore) = 
+    addControlListener[T](new ControlListenerForwarder(moved, resized))
+
+  // DisposeListener-----------------------------------------------------------------
+  
+  private type AddDisposeListener = { def addDisposeListener(l: DisposeListener) }
+  
+  def addDisposeListener[T <: AddDisposeListener](l: DisposeListener) =
+    (subject : T) => subject.addDisposeListener(l)
+  
+  private class DisposeListenerForwarder(func: DisposeEvent => Any) extends DisposeListener {
+    override def widgetDisposed(e: DisposeEvent) = func(e)
+  }
+  
+  implicit def onDispose[T <: AddDisposeListener](func: DisposeEvent => Any) = 
+    addDisposeListener[T](func)
+    
+  def onDispose[T <: AddDisposeListener](func: => Unit) = 
+    addDisposeListener[T]((e: DisposeEvent) => func)
+  
+  implicit def func2DisposeListener(func: DisposeEvent => Any): DisposeListener = 
+    new DisposeListenerForwarder(func)
+  
+  // DragDetectListener-----------------------------------------------------------------
+  
+  private type AddDragDetectListener = { def addDragDetectListener(l: DragDetectListener) }
+  
+  def addDragDetectListener[T <: AddDragDetectListener](l: DragDetectListener) =
+    (subject : T) => subject.addDragDetectListener(l)
+  
+  private class DragDetectListenerForwarder(func: DragDetectEvent => Any) extends DragDetectListener {
+    override def dragDetected(e: DragDetectEvent) = func(e)
+  }
+  
+  implicit def onDragDetect[T <: AddDragDetectListener](func: DragDetectEvent => Any) = 
+    addDragDetectListener[T](func)
+    
+  def onDragDetect[T <: AddDragDetectListener](func: => Unit) = 
+    addDragDetectListener[T]((e: DragDetectEvent) => func)
+  
+  implicit def func2DragDetectListener(func: DragDetectEvent => Any): DragDetectListener = 
+    new DragDetectListenerForwarder(func)
+
+  // ExpandListener-----------------------------------------------------------------
+  
+  private type AddExpandListener = { def addExpandListener(l: ExpandListener) }
+  
+  def addExpandListener[T <: AddExpandListener](l: ExpandListener) =
+    (subject : T) => subject.addExpandListener(l)
+  
+  private class ExpandListenerForwarder(collapsed: ExpandEvent => Any, expanded: ExpandEvent => Any) extends ExpandListener {
+    def itemCollapsed(e: ExpandEvent) = collapsed(e)
+    def itemExpanded(e: ExpandEvent) = expanded(e)
+  }
+  
+  def onExpand[T <: AddExpandListener](collapsed: ExpandEvent => Any = ignore, expanded: ExpandEvent => Any = ignore) = 
+    addExpandListener[T](new ExpandListenerForwarder(collapsed, expanded))
+
+  // FocusListener-----------------------------------------------------------------
+  
+  private type AddFocusListener = { def addFocusListener(l: FocusListener) }
+  
+  def addFocusListener[T <: AddFocusListener](l: FocusListener) =
+    (subject : T) => subject.addFocusListener(l)
+  
+  private class FocusListenerForwarder(gained: FocusEvent => Any, lost: FocusEvent => Any) extends FocusListener {
+    override def focusGained(e: FocusEvent) = gained(e)
+    override def focusLost(e: FocusEvent) = lost(e)
+  }
+  
+  def onFocus[T <: AddFocusListener](gained: FocusEvent => Any = ignore, lost: FocusEvent => Any = ignore) = 
+    addFocusListener[T](new FocusListenerForwarder(gained, lost))
+
+  // HelpListener-----------------------------------------------------------------
+  
+  private type AddHelpListener = { def addHelpListener(l: HelpListener) }
+  
+  def addHelpListener[T <: AddHelpListener](l: HelpListener) =
+    (subject : T) => subject.addHelpListener(l)
+  
+  private class HelpListenerForwarder(func: HelpEvent => Any) extends HelpListener {
+    override def helpRequested(e: HelpEvent) = func(e)
+  }
+  
+  implicit def onHelp[T <: AddHelpListener](func: HelpEvent => Any) = 
+    addHelpListener[T](func)
+    
+  def onHelp[T <: AddHelpListener](func: => Unit) = 
+    addHelpListener[T]((e: HelpEvent) => func)
+  
+  implicit def func2HelpListener(func: HelpEvent => Any): HelpListener = 
+    new HelpListenerForwarder(func)
+  
+  // KeyListener-----------------------------------------------------------------
+  
+  private type AddKeyListener = { def addKeyListener(l: KeyListener) }
+  
+  def addKeyListener[T <: AddKeyListener](l: KeyListener) =
+    (subject : T) => subject.addKeyListener(l)
+  
+  private class KeyListenerForwarder(pressed: KeyEvent => Any, released: KeyEvent => Any) extends KeyListener {
+    override def keyPressed(e: KeyEvent) = pressed(e)
+    override def keyReleased(e: KeyEvent) = released(e)
+  }
+  
+  def onKey[T <: AddKeyListener](pressed: KeyEvent => Any = ignore, released: KeyEvent => Any = ignore) = 
+    addKeyListener[T](new KeyListenerForwarder(pressed, released))
+
+  // MenuDetectListener-----------------------------------------------------------------
+  
+  private type AddMenuDetectListener = { def addMenuDetectListener(l: MenuDetectListener) }
+  
+  def addMenuDetectListener[T <: AddMenuDetectListener](l: MenuDetectListener) =
+    (subject : T) => subject.addMenuDetectListener(l)
+  
+  private class MenuDetectListenerForwarder(func: MenuDetectEvent => Any) extends MenuDetectListener {
+    override def menuDetected(e: MenuDetectEvent) = func(e)
+  }
+  
+  implicit def onMenuDetect[T <: AddMenuDetectListener](func: MenuDetectEvent => Any) = 
+    addMenuDetectListener[T](func)
+    
+  def onMenuDetect[T <: AddMenuDetectListener](func: => Unit) = 
+    addMenuDetectListener[T]((e: MenuDetectEvent) => func)
+  
+  implicit def func2MenuDetectListener(func: MenuDetectEvent => Any): MenuDetectListener = 
+    new MenuDetectListenerForwarder(func)
+  
+  // MenuListener-----------------------------------------------------------------
+  
+  private type AddMenuListener = { def addMenuListener(l: MenuListener) }
+  
+  def addMenuListener[T <: AddMenuListener](l: MenuListener) =
+    (subject : T) => subject.addMenuListener(l)
+  
+  private class MenuListenerForwarder(hidden: MenuEvent => Any, shown: MenuEvent => Any) extends MenuListener {
+    override def menuHidden(e: MenuEvent) = hidden(e)
+    override def menuShown(e: MenuEvent) = shown(e)
+  }
+  
+  def onMenu[T <: AddMenuListener](hidden: MenuEvent => Any = ignore, shown: MenuEvent => Any = ignore) = 
+    addMenuListener[T](new MenuListenerForwarder(hidden, shown))
+
+  // MouseMoveListener-----------------------------------------------------------------
+  
+  private type AddMouseMoveListener = { def addMouseMoveListener(l: MouseMoveListener) }
+  
+  def addMouseMoveListener[T <: AddMouseMoveListener](l: MouseMoveListener) =
+    (subject : T) => subject.addMouseMoveListener(l)
+  
+  private class MouseMoveListenerForwarder(func: MouseEvent => Any) extends MouseMoveListener {
+    override def mouseMove(e: MouseEvent) = func(e)
+  }
+  
+  implicit def onMouseMove[T <: AddMouseMoveListener](func: MouseEvent => Any) = 
+    addMouseMoveListener[T](func)
+    
+  def onMouseMove[T <: AddMouseMoveListener](func: => Unit) = 
+    addMouseMoveListener[T]((e: MouseEvent) => func)
+  
+  implicit def func2MouseMoveListener(func: MouseEvent => Any): MouseMoveListener = 
+    new MouseMoveListenerForwarder(func)
+  
+  // MouseTrackListener-----------------------------------------------------------------
+
+  private type AddMouseTrackListener = { def addMouseTrackListener(l : MouseTrackListener) }
+  
+  private class MouseTrackListenerForwarder(enter: MouseEvent => Any, exit: MouseEvent => Any, hover: MouseEvent => Any) extends MouseTrackListener {
+    override def mouseEnter(e : MouseEvent) = enter(e)
+    override def mouseExit(e : MouseEvent) = exit(e)
+    override def mouseHover(e : MouseEvent) = hover(e)
+  }
+
+  def addMouseTrackListener[T <: AddMouseTrackListener](l: MouseTrackListener) = 
+    (subject:T) => subject.addMouseTrackListener(l)
+  
+  def onMouseTrack[T <: AddMouseTrackListener](enter: MouseEvent => Any = ignore, exit: MouseEvent => Any = ignore, hover: MouseEvent => Any = ignore) =
+    addMouseTrackListener[T](new MouseTrackListenerForwarder(enter, exit, hover))
+
+  // MouseWheelListener-----------------------------------------------------------------
+  
+  private type AddMouseWheelListener = { def addMouseWheelListener(l: MouseWheelListener) }
+  
+  def addMouseWheelListener[T <: AddMouseWheelListener](l: MouseWheelListener) =
+    (subject : T) => subject.addMouseWheelListener(l)
+  
+  private class MouseWheelListenerForwarder(func: MouseEvent => Any) extends MouseWheelListener {
+    override def mouseScrolled(e: MouseEvent) = func(e)
+  }
+  
+  implicit def onMouseWheel[T <: AddMouseWheelListener](func: MouseEvent => Any) = 
+    addMouseWheelListener[T](func)
+    
+  def onMouseWheel[T <: AddMouseWheelListener](func: => Unit) = 
+    addMouseWheelListener[T]((e: MouseEvent) => func)
+  
+  implicit def func2MouseWheelListener(func: MouseEvent => Any): MouseWheelListener = 
+    new MouseWheelListenerForwarder(func)
+
+  // PaintListener-----------------------------------------------------------------
+  
+  private type AddPaintListener = { def addPaintListener(l: PaintListener) }
+  
+  def addPaintListener[T <: AddPaintListener](l: PaintListener) =
+    (subject : T) => subject.addPaintListener(l)
+  
+  private class PaintListenerForwarder(func: PaintEvent => Any) extends PaintListener {
+    override def paintControl(e: PaintEvent) = func(e)
+  }
+  
+  implicit def onPaint[T <: AddPaintListener](func: PaintEvent => Any) = 
+    addPaintListener[T](func)
+    
+  def onPaint[T <: AddPaintListener](func: => Unit) = 
+    addPaintListener[T]((e: PaintEvent) => func)
+  
+  implicit def func2PaintListener(func: PaintEvent => Any): PaintListener = 
+    new PaintListenerForwarder(func)
+
+  // ShellListener-----------------------------------------------------------------
+  
+  private type AddShellListener = { def addShellListener(l: ShellListener) }
+  
+  def addShellListener[T <: AddShellListener](l: ShellListener) =
+    (subject : T) => subject.addShellListener(l)
+  
+  private class ShellListenerForwarder(activated: ShellEvent => Any, closed: ShellEvent => Any, deactivated: ShellEvent => Any, deiconified: ShellEvent => Any, iconified: ShellEvent => Any) extends ShellListener {
+    override def shellActivated(e: ShellEvent) = activated(e)
+    override def shellClosed(e: ShellEvent) = closed(e)
+    override def shellDeactivated(e: ShellEvent) = deactivated(e)
+    override def shellDeiconified(e: ShellEvent) = deiconified(e)
+    override def shellIconified(e: ShellEvent) = iconified(e)
+  }
+  
+  def onShell[T <: AddShellListener](activated: ShellEvent => Any = ignore, closed: ShellEvent => Any = ignore, deactivated: ShellEvent => Any = ignore, deiconified: ShellEvent => Any = ignore, iconified: ShellEvent => Any = ignore) = 
+    addShellListener[T](new ShellListenerForwarder(activated, closed, deactivated, deiconified, iconified))
+
+  // TreeListener-----------------------------------------------------------------
+  
+  private type AddTreeListener = { def addTreeListener(l: TreeListener) }
+  
+  def addTreeListener[T <: AddTreeListener](l: TreeListener) =
+    (subject : T) => subject.addTreeListener(l)
+  
+  private class TreeListenerForwarder(collapsed: TreeEvent => Any, expanded: TreeEvent => Any) extends TreeListener {
+    override def treeCollapsed(e: TreeEvent) = collapsed(e)
+    override def treeExpanded(e: TreeEvent) = expanded(e)
+  }
+  
+  def onTree[T <: AddTreeListener](collapsed: TreeEvent => Any = ignore, expanded: TreeEvent => Any = ignore) = 
+    addTreeListener[T](new TreeListenerForwarder(collapsed, expanded))
+
+  // VerifyListener-----------------------------------------------------------------
+  
+  private type AddVerifyListener = { def addVerifyListener(l: VerifyListener) }
+  
+  def addVerifyListener[T <: AddVerifyListener](l: VerifyListener) =
+    (subject : T) => subject.addVerifyListener(l)
+  
+  private class VerifyListenerForwarder(func: VerifyEvent => Any) extends VerifyListener {
+    override def verifyText(e: VerifyEvent) = func(e)
+  }
+  
+  implicit def onVerify[T <: AddVerifyListener](func: VerifyEvent => Any) = 
+    addVerifyListener[T](func)
+    
+  def onVerify[T <: AddVerifyListener](func: => Unit) = 
+    addVerifyListener[T]((e: VerifyEvent) => func)
+  
+  implicit def func2VerifyListener(func: VerifyEvent => Any): VerifyListener = 
+    new VerifyListenerForwarder(func)
+  
   // 
   // Other convenience methods
   //
@@ -443,5 +756,6 @@ object XScalaWT {
 
   implicit def func2Runnable(f : => Any) = new Runnable { override def run() = f }
 
+  private def ignore[T]: T => Unit = (t: T) => {}
 }
 
