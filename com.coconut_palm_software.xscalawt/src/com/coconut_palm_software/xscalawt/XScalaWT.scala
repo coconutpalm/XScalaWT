@@ -362,25 +362,32 @@ object XScalaWT {
   def addSelectionListener[T <: AddSelectionListener](l: SelectionListener) =
     (subject: T) => subject.addSelectionListener(l)
     
-  implicit def selectionFn2addSelectionListener[T <: AddSelectionListener](func: SelectionEvent => Any) =
+  implicit def onSelection[T <: AddSelectionListener](func: SelectionEvent => Any) =
     addSelectionListener[T](func)
+    
+  // can't be => Any, or we lose type inference
+  def onSelection[T <: AddSelectionListener](func: => Unit) =
+    addSelectionListener[T]((e: SelectionEvent) => func)
   
   implicit def func2SelectionListener(func: SelectionEvent => Any): SelectionListener =
-	new SelectionListenerForwarder(func)
+	  new SelectionListenerForwarder(func)
   
   // MouseListener-----------------------------------------------------------------
 
   private type AddMouseListener = { def addMouseListener(l : MouseListener) }
   
   private class MouseListenerForwarder(func: MouseEvent => Any) extends MouseAdapter {
-	override def mouseDown(e : MouseEvent) = func(e)
+	  override def mouseDown(e : MouseEvent) = func(e)
   }
 
   def addMouseListener[T <: AddMouseListener](l: MouseListener) = 
-	(subject:T) => subject.addMouseListener(l)
+	  (subject:T) => subject.addMouseListener(l)
   
-  implicit def mouseFunc2addMouseListener[T <: AddMouseListener](func: MouseEvent => Any) =
-	addMouseListener[T](func)
+  implicit def onMouseDown[T <: AddMouseListener](func: MouseEvent => Any) =
+	  addMouseListener[T](func)
+	  
+  def onMouseDown[T <: AddMouseListener](func: => Unit) =
+    addMouseListener[T]((e: MouseEvent) => func)
   
   implicit def func2MouseListener(func: MouseEvent => Any): MouseListener =
 	  new MouseListenerForwarder(func)
@@ -390,14 +397,17 @@ object XScalaWT {
   private type AddModifyListener = { def addModifyListener(l: ModifyListener) }
   
   def addModifyListener[T <: AddModifyListener](l: ModifyListener) =
-	(subject : T) => subject.addModifyListener(l)
+	  (subject : T) => subject.addModifyListener(l)
   
   private class ModifyListenerForwarder(func: ModifyEvent => Any) extends ModifyListener {
     override def modifyText(e: ModifyEvent) = func(e)
   }
   
-  implicit def modifyFn2addModifyListener[T <: AddModifyListener](func: ModifyEvent => Any) = 
-	addModifyListener[T](func)
+  implicit def onModify[T <: AddModifyListener](func: ModifyEvent => Any) = 
+	  addModifyListener[T](func)
+	  
+	def onModify[T <: AddModifyListener](func: => Unit) = 
+    addModifyListener[T]((e: ModifyEvent) => func)
   
   implicit def func2ModifyListener(func: ModifyEvent => Any): ModifyListener = 
     new ModifyListenerForwarder(func)
@@ -407,14 +417,17 @@ object XScalaWT {
   private type AddTraverseListener = { def addTraverseListener(l: TraverseListener) }
   
   def addTraverseListener[T <: AddTraverseListener](l: TraverseListener) =
-	(subject: T) => subject.addTraverseListener(l)
+	  (subject: T) => subject.addTraverseListener(l)
   
   private class TraverseListenerForwarder(func: TraverseEvent => Any) extends TraverseListener {
     override def keyTraversed(e : TraverseEvent) = func(e)
   }
   
-  implicit def modifyFn2addTraverseListener[T <: AddTraverseListener](func: TraverseEvent => Any) =
-	addTraverseListener[T](func)
+  implicit def onTraverse[T <: AddTraverseListener](func: TraverseEvent => Any) =
+	  addTraverseListener[T](func)
+	  
+	def onTraverse[T <: AddTraverseListener](func: => Unit) =
+    addTraverseListener[T]((e: TraverseEvent) => func)
   
   implicit def func2TraverseListener(func: TraverseEvent => Any): TraverseListener = 
     new TraverseListenerForwarder(func)
