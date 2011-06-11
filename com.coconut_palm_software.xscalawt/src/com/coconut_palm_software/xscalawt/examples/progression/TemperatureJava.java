@@ -1,4 +1,4 @@
-package com.coconut_palm_software.xscalawt.examples.temp;
+package com.coconut_palm_software.xscalawt.examples.progression;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
