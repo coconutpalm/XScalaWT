@@ -59,11 +59,11 @@ object LoginBox {
 
         button("OK", 
           layoutData = new GridData(GridData.HORIZONTAL_ALIGN_FILL),
-          { e : SelectionEvent => println("OK") }
+          onSelection { println("OK") }
         ),
         button("Cancel", 
           layoutData = new GridData(GridData.HORIZONTAL_ALIGN_FILL),
-          { e : SelectionEvent => println("Cancel") }
+          onSelection { println("Cancel") }
         )
       ),
       
