@@ -35,6 +35,11 @@
 			<artifactId>scala-library</artifactId>
 			<version>${scala.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.scala-ide</groupId>
+			<artifactId>org.scala-ide.scala.library</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -59,6 +64,15 @@
 			<url>http://scala-tools.org/repo-snapshots</url>
 			<snapshots>
 				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>scala-osgi</id>
+			<name>Scala OSGi toolchain p2 repository</name>
+			<layout>p2</layout>
+			<url>http://download.scala-ide.org/scala-eclipse-toolchain-osgi-${scala.version}</url>
+			<snapshots>
+				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 	</repositories>
