@@ -11,7 +11,7 @@
 
 	<properties>
 		<scala.version>2.9.0-1</scala.version>
-		<tycho-version>0.11.0</tycho-version>
+		<tycho-version>0.12.0</tycho-version>
 		<maven-scala-plugin-version>2.14</maven-scala-plugin-version>
 		<encoding>UTF-8</encoding>
 	</properties>
@@ -65,7 +65,7 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>org.sonatype.tycho</id>
+			<id>org.eclipse.tycho</id>
 			<name>Tycho snapshot repository</name>
 			<url>https://repository.sonatype.org/content/repositories/snapshots</url>
 			<snapshots>
@@ -86,7 +86,7 @@
 			<url>http://scala-tools.org/repo-snapshots</url>
 		</pluginRepository>
 	</pluginRepositories>
-	
+
 	<profiles>
 		<profile>
 			<id>scala-2.8.0</id>
@@ -380,17 +380,18 @@
 						</goals>
 					</execution>
 				</executions>
+				<version>${maven-scala-plugin-version}</version>
 			</plugin>
-			
+
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
 
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
