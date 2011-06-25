@@ -4,7 +4,7 @@ Bundle-Name: XScalaWT
 Bundle-Vendor: Coconut Palm Software
 Bundle-SymbolicName: com.coconut_palm_software.xscalawt
 Bundle-Version: 1.0.0
-Require-Bundle: scala.library,
+Require-Bundle: org.scala-ide.scala.library;bundle-version="2.8.0",
  org.eclipse.swt;bundle-version="3.4.0",
  org.eclipse.jface;bundle-version="3.4.0",
  org.eclipse.core.databinding;bundle-version="1.1.0",
