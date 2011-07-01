@@ -345,7 +345,7 @@ object XScalaWT {
     def selection_=[T <: { def setSelection(value: Int) }](value: Int) =
       (subject: T) => subject.setSelection(value)
   }
-
+  
   //
   // Event handling here
   //
@@ -750,12 +750,66 @@ object XScalaWT {
   // Other convenience methods
   //
   
-  def display = Display.getDefault
+  implicit def display = Display.getDefault
 
-  implicit def int2Color(swtColorConstant : Int) = display.getSystemColor(swtColorConstant)
+  implicit def int2Color(swtColorConstant : Int)(implicit d: Display) = 
+    d.getSystemColor(swtColorConstant)
 
   implicit def func2Runnable(f : => Any) = new Runnable { override def run() = f }
+  
+  def syncExecInUIThread(f: => Any)(implicit d: Display) {
+    // is it worth checking if we are already on the UI thread?
+    d.syncExec(f)
+  }
+
+  def asyncExecInUIThread(f: => Any)(implicit d: Display) {
+    d.asyncExec(f)
+  }
+  
+  import scala.util.control.Exception._
+
+  def syncEvalInUIThread[A](f: => A)(implicit d: Display): A = {
+    @volatile var result: Either[Throwable, A] = null
+    d.syncExec {
+      result = allCatch.either(f)
+    }
+    result match {
+    case Left(e) => throw e
+    case Right(res) => res
+    }
+  }
+
+  import scala.parallel.Future // Or java.util.concurrent.Future?
+  def asyncEvalInUIThread[A](f: => A)(implicit d: Display): Future[A] = {
+    val future = new Future[A] {
+      import java.util.concurrent.locks.ReentrantLock
+
+      private val lock = new ReentrantLock
+      private val doneCond = lock.newCondition
+      @volatile private var result: Option[Either[Throwable, A]] = None
+
+      def isDone = result.isDefined
+
+      def apply() = {
+        while (!isDone) { doneCond.wait() }
+
+        result.get match {
+        case Left(e) => throw e
+        case Right(res) => res
+        }
+      }
+
+      def begin() {
+        d.asyncExec {
+          result = Some(allCatch.either(f))
+          doneCond.signalAll()
+        }
+      }
+    }
+    
+    future.begin()
+    future
+  }
 
   private def ignore[T]: T => Unit = (t: T) => {}
 }
-
