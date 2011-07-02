@@ -10,5 +10,6 @@ Require-Bundle: org.eclipse.swt,
  org.eclipse.core.databinding.beans,
  org.eclipse.core.databinding.property,
  org.eclipse.jface.databinding,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.scala-ide.scala.library;bundle-version="2.8.0"
 Export-Package: com.coconut_palm_software.xscalawt
