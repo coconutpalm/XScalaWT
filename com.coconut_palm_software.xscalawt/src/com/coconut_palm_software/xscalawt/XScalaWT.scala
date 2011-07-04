@@ -19,6 +19,7 @@ import org.eclipse.swt.browser._
 import org.eclipse.swt.custom._
 import org.eclipse.swt.layout._
 import org.eclipse.swt.SWT
+import org.eclipse.jface.layout.GridDataFactory
 
 import XScalaWTAPI._
 
@@ -281,6 +282,44 @@ object XScalaWT {
   
   implicit def widget2XScalaWT[W <: Widget](widget : W) = new WidgetX[W](widget)  
 
+  // Layouts here
+  
+  def fillLayout(setups: (FillLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new FillLayout, setups:_*))
+  }
+
+  def rowLayout(setups: (RowLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new RowLayout, setups:_*))
+  }
+  
+  def vertical = (_: Layout) match {
+  case row: RowLayout => row.`type` = SWT.VERTICAL
+  case fill: FillLayout => fill.`type` = SWT.VERTICAL
+  case _ => throw new IllegalArgumentException("Wrong layout class")
+  }
+  
+  def horizontal = (_: Layout) match {
+  case row: RowLayout => row.`type` = SWT.HORIZONTAL
+  case fill: FillLayout => fill.`type` = SWT.HORIZONTAL
+  case _ => throw new IllegalArgumentException("Wrong layout class")
+  }
+  
+  def formLayout(setups: (FormLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new FormLayout, setups:_*))
+  }
+  
+  def formData(width: Int = SWT.DEFAULT, height: Int = SWT.DEFAULT)(setups: (FormData => Any)*) = (c: Control) => {
+    c.setLayoutData(setupAndReturn(new FormData(width, height), setups:_*))
+  }
+  
+  def gridLayout(columns: Int = 1, equalWidth: Boolean = false)(setups: (GridLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new GridLayout(columns, equalWidth), setups:_*))
+  }
+  
+  def defaultGridData = (c: Control) => GridDataFactory.defaultsFor(c).applyTo(c)
+  def modifiedDefaultGridData(setup: GridDataFactory => GridDataFactory) = 
+    (c: Control) => setup(GridDataFactory.defaultsFor(c)).applyTo(c)
+  
 //    (setups:(Browser => Any)*)
     
   //
@@ -805,6 +844,8 @@ object XScalaWT {
     d.getSystemColor(swtColorConstant)
 
   implicit def func2Runnable(f : => Any) = new Runnable { override def run() = f }
+  
+  implicit def tuple2Point(pair: (Int, Int)) = new Point(pair._1, pair._2)
   
   def syncExecInUIThread(f: => Any)(implicit d: Display) {
     // is it worth checking if we are already on the UI thread?
