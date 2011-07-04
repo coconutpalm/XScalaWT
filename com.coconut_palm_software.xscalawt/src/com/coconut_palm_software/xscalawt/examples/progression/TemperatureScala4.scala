@@ -21,7 +21,7 @@ class Temperature4(parent: Composite, style : Int) extends Composite(parent, sty
     text(fahrenheit = _),
     text(celcius = _),
  
-    button("Fareinheight => Celcius", onSelection {e => celcius.setText((5.0/9.0) * (fahrenheit - 32)) }),
-    button("Celcius -> Fareinheight", {e : SelectionEvent => fahrenheit.setText((9.0/5.0) * celcius + 32) })
+    button("Fahrenheit -> Celcius", onSelection {e => celcius.text = ((5.0/9.0) * (fahrenheit - 32)) }),
+    button("Celcius -> Fahrenheit", {e : SelectionEvent => fahrenheit.text = ((9.0/5.0) * celcius + 32) })
   )
 }
