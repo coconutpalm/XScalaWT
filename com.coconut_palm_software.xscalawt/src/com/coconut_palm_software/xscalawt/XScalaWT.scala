@@ -19,6 +19,7 @@ import org.eclipse.swt.browser._
 import org.eclipse.swt.custom._
 import org.eclipse.swt.layout._
 import org.eclipse.swt.SWT
+import org.eclipse.jface.layout.GridDataFactory
 
 import XScalaWTAPI._
 
@@ -281,6 +282,44 @@ object XScalaWT {
   
   implicit def widget2XScalaWT[W <: Widget](widget : W) = new WidgetX[W](widget)  
 
+  // Layouts here
+  
+  def fillLayout(setups: (FillLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new FillLayout, setups:_*))
+  }
+
+  def rowLayout(setups: (RowLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new RowLayout, setups:_*))
+  }
+  
+  def vertical = (_: Layout) match {
+  case row: RowLayout => row.`type` = SWT.VERTICAL
+  case fill: FillLayout => fill.`type` = SWT.VERTICAL
+  case _ => throw new IllegalArgumentException("Wrong layout class")
+  }
+  
+  def horizontal = (_: Layout) match {
+  case row: RowLayout => row.`type` = SWT.HORIZONTAL
+  case fill: FillLayout => fill.`type` = SWT.HORIZONTAL
+  case _ => throw new IllegalArgumentException("Wrong layout class")
+  }
+  
+  def formLayout(setups: (FormLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new FormLayout, setups:_*))
+  }
+  
+  def formData(width: Int = SWT.DEFAULT, height: Int = SWT.DEFAULT)(setups: (FormData => Any)*) = (c: Control) => {
+    c.setLayoutData(setupAndReturn(new FormData(width, height), setups:_*))
+  }
+  
+  def gridLayout(columns: Int = 1, equalWidth: Boolean = false)(setups: (GridLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new GridLayout(columns, equalWidth), setups:_*))
+  }
+  
+  def defaultGridData = (c: Control) => GridDataFactory.defaultsFor(c).applyTo(c)
+  def modifiedDefaultGridData(setup: GridDataFactory => GridDataFactory) = 
+    (c: Control) => setup(GridDataFactory.defaultsFor(c)).applyTo(c)
+  
 //    (setups:(Browser => Any)*)
     
   //
@@ -345,7 +384,56 @@ object XScalaWT {
     def selection_=[T <: { def setSelection(value: Int) }](value: Int) =
       (subject: T) => subject.setSelection(value)
   }
+  
+  case class PimpGetText[T <: {def getText(): String; def setText(text: String)}](control: T) {
+    def text = control.getText
+    def text_=(text: String) { control.setText(text) }
+  }
+  implicit def pimpGetText[T <: {def getText(): String; def setText(text: String)}](control: T) = new PimpGetText(control)
+  
+  case class PimpGetImage[T <: {def getImage(): Image; def setImage(image: Image)}](control: T) {
+    def image = control.getImage
+    def image_=(image: Image) { control.setImage(image) }
+  }
+  implicit def pimpGetImage[T <: {def getImage(): Image; def setImage(image: Image)}](control: T) = new PimpGetImage(control)
+  
+  case class PimpGetControl[T <: {def getControl(): Control; def setControl(control: Control)}](c: T) {
+    def control = c.getControl
+    def control_=(control: Control) { c.setControl(control) }
+  }
+  implicit def pimpGetControl[T <: {def getControl(): Control; def setControl(control: Control)}](control: T) = new PimpGetControl(control)
 
+  case class PimpGetBackground[T <: {def getBackground(): Color; def setBackground(background: Color)}](control: T) {
+    def background = control.getBackground
+    def background_=(background: Color) { control.setBackground(background) }
+  }
+  implicit def pimpGetBackground[T <: {def getBackground(): Color; def setBackground(background: Color)}](control: T) = new PimpGetBackground(control)
+  
+  case class PimpGetForeground[T <: {def getForeground(): Color; def setForeground(foreground: Color)}](control: T) {
+    def foreground = control.getForeground
+    def foreground_=(foreground: Color) { control.setForeground(foreground) }
+  }
+  implicit def pimpGetForeground[T <: {def getForeground(): Color; def setForeground(foreground: Color)}](control: T) = new PimpGetForeground(control)
+  
+  case class PimpGetLayout[T <: {def getLayout(): Layout; def setLayout(layout: Layout)}](control: T) {
+    def layout = control.getLayout
+    def layout_=(layout: Layout) { control.setLayout(layout) }
+  }
+  implicit def pimpGetLayout[T <: {def getLayout(): Layout; def setLayout(layout: Layout)}](control: T) = new PimpGetLayout(control)
+  
+  case class PimpGetLayoutData[T <: {def getLayoutData(): AnyRef; def setLayoutData(layoutData: AnyRef)}](control: T) {
+    def layoutData = control.getLayoutData
+    def layoutData_=(layoutData: AnyRef) { control.setLayoutData(layoutData) }
+  }
+  implicit def pimpGetLayoutData[T <: {def getLayoutData(): AnyRef; def setLayoutData(layoutData: AnyRef)}](control: T) = new PimpGetLayoutData(control)
+  
+  // for JFace viewers
+  case class PimpGetInput[T <: {def getInput(): AnyRef; def setInput(input: AnyRef)}](control: T) {
+    def input = control.getInput
+    def input_=(input: AnyRef) { control.setInput(input) }
+  }
+  implicit def pimpGetInput[T <: {def getInput(): AnyRef; def setInput(input: AnyRef)}](control: T) = new PimpGetInput(control)
+  
   //
   // Event handling here
   //
@@ -750,12 +838,68 @@ object XScalaWT {
   // Other convenience methods
   //
   
-  def display = Display.getDefault
+  implicit def display = Display.getDefault
 
-  implicit def int2Color(swtColorConstant : Int) = display.getSystemColor(swtColorConstant)
+  implicit def int2Color(swtColorConstant : Int)(implicit d: Display) = 
+    d.getSystemColor(swtColorConstant)
 
   implicit def func2Runnable(f : => Any) = new Runnable { override def run() = f }
+  
+  implicit def tuple2Point(pair: (Int, Int)) = new Point(pair._1, pair._2)
+  
+  def syncExecInUIThread(f: => Any)(implicit d: Display) {
+    // is it worth checking if we are already on the UI thread?
+    d.syncExec(f)
+  }
+
+  def asyncExecInUIThread(f: => Any)(implicit d: Display) {
+    d.asyncExec(f)
+  }
+  
+  import scala.util.control.Exception._
+
+  def syncEvalInUIThread[A](f: => A)(implicit d: Display): A = {
+    @volatile var result: Either[Throwable, A] = null
+    d.syncExec {
+      result = allCatch.either(f)
+    }
+    result match {
+    case Left(e) => throw e
+    case Right(res) => res
+    }
+  }
+
+  import scala.parallel.Future // Or java.util.concurrent.Future?
+  def asyncEvalInUIThread[A](f: => A)(implicit d: Display): Future[A] = {
+    val future = new Future[A] {
+      import java.util.concurrent.locks.ReentrantLock
+
+      private val lock = new ReentrantLock
+      private val doneCond = lock.newCondition
+      @volatile private var result: Option[Either[Throwable, A]] = None
+
+      def isDone = result.isDefined
+
+      def apply() = {
+        while (!isDone) { doneCond.wait() }
+
+        result.get match {
+        case Left(e) => throw e
+        case Right(res) => res
+        }
+      }
+
+      def begin() {
+        d.asyncExec {
+          result = Some(allCatch.either(f))
+          doneCond.signalAll()
+        }
+      }
+    }
+    
+    future.begin()
+    future
+  }
 
   private def ignore[T]: T => Unit = (t: T) => {}
 }
-
