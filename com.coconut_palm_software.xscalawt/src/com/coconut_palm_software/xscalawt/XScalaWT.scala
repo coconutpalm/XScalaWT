@@ -451,7 +451,7 @@ object XScalaWT {
   def addSelectionListener[T <: AddSelectionListener](l: SelectionListener) =
     (subject: T) => subject.addSelectionListener(l)
     
-  implicit def onSelection[T <: AddSelectionListener](func: SelectionEvent => Any) =
+  def onSelection[T <: AddSelectionListener](func: SelectionEvent => Any) =
     addSelectionListener[T](func)
 
   def onSelection[T <: AddSelectionListener](normal: SelectionEvent => Any, defaultSelected: SelectionEvent => Any) =
@@ -460,6 +460,9 @@ object XScalaWT {
   // can't be => Any, or we lose type inference
   def onSelection[T <: AddSelectionListener](func: => Unit) =
     addSelectionListener[T]((e: SelectionEvent) => func)
+    
+  implicit def onSelectionImplicit[T <: AddSelectionListener](func: SelectionEvent => Any) =
+    addSelectionListener[T](func)
   
   implicit def func2SelectionListener(func: SelectionEvent => Any): SelectionListener =
     new SelectionListenerForwarder(func, func)
@@ -481,12 +484,15 @@ object XScalaWT {
     addMouseListener[T](new MouseListenerForwarder(doubleClick, down, up))
 
   // since we often only need to handle mouse down
-  implicit def onMouseDown[T <: AddMouseListener](func: MouseEvent => Any) =
+  def onMouseDown[T <: AddMouseListener](func: MouseEvent => Any) =
     addMouseListener[T](func)
     
   def onMouseDown[T <: AddMouseListener](func: => Unit) =
     addMouseListener[T]((e: MouseEvent) => func)
-  
+    
+  implicit def onMouseDownImplicit[T <: AddMouseListener](func: MouseEvent => Any) =
+    addMouseListener[T](func)
+    
   implicit def func2MouseListener(func: MouseEvent => Any): MouseListener =
     new MouseListenerForwarder(ignore, func, ignore)
   
@@ -501,11 +507,14 @@ object XScalaWT {
     override def modifyText(e: ModifyEvent) = func(e)
   }
   
-  implicit def onModify[T <: AddModifyListener](func: ModifyEvent => Any) = 
+  def onModify[T <: AddModifyListener](func: ModifyEvent => Any) = 
     addModifyListener[T](func)
     
   def onModify[T <: AddModifyListener](func: => Unit) = 
     addModifyListener[T]((e: ModifyEvent) => func)
+  
+  implicit def onModifyImplicit[T <: AddModifyListener](func: ModifyEvent => Any) = 
+    addModifyListener[T](func)
   
   implicit def func2ModifyListener(func: ModifyEvent => Any): ModifyListener = 
     new ModifyListenerForwarder(func)
@@ -521,11 +530,14 @@ object XScalaWT {
     override def keyTraversed(e : TraverseEvent) = func(e)
   }
   
-  implicit def onTraverse[T <: AddTraverseListener](func: TraverseEvent => Any) =
+  def onTraverse[T <: AddTraverseListener](func: TraverseEvent => Any) =
     addTraverseListener[T](func)
     
   def onTraverse[T <: AddTraverseListener](func: => Unit) =
     addTraverseListener[T]((e: TraverseEvent) => func)
+  
+  implicit def onTraverseImplicit[T <: AddTraverseListener](func: TraverseEvent => Any) =
+    addTraverseListener[T](func)
   
   implicit def func2TraverseListener(func: TraverseEvent => Any): TraverseListener = 
     new TraverseListenerForwarder(func)
@@ -541,11 +553,14 @@ object XScalaWT {
     override def widgetArmed(e: ArmEvent) = func(e)
   }
   
-  implicit def onArm[T <: AddArmListener](func: ArmEvent => Any) = 
+  def onArm[T <: AddArmListener](func: ArmEvent => Any) = 
     addArmListener[T](func)
     
   def onArm[T <: AddArmListener](func: => Unit) = 
     addArmListener[T]((e: ArmEvent) => func)
+  
+  implicit def onArmImplicit[T <: AddArmListener](func: ArmEvent => Any) = 
+    addArmListener[T](func)
   
   implicit def func2ArmListener(func: ArmEvent => Any): ArmListener = 
     new ArmListenerForwarder(func)
@@ -576,12 +591,15 @@ object XScalaWT {
     override def widgetDisposed(e: DisposeEvent) = func(e)
   }
   
-  implicit def onDispose[T <: AddDisposeListener](func: DisposeEvent => Any) = 
+  def onDispose[T <: AddDisposeListener](func: DisposeEvent => Any) = 
     addDisposeListener[T](func)
     
   def onDispose[T <: AddDisposeListener](func: => Unit) = 
     addDisposeListener[T]((e: DisposeEvent) => func)
   
+  implicit def onDisposeImplicit[T <: AddDisposeListener](func: DisposeEvent => Any) = 
+    addDisposeListener[T](func)
+    
   implicit def func2DisposeListener(func: DisposeEvent => Any): DisposeListener = 
     new DisposeListenerForwarder(func)
   
@@ -596,12 +614,15 @@ object XScalaWT {
     override def dragDetected(e: DragDetectEvent) = func(e)
   }
   
-  implicit def onDragDetect[T <: AddDragDetectListener](func: DragDetectEvent => Any) = 
+  def onDragDetect[T <: AddDragDetectListener](func: DragDetectEvent => Any) = 
     addDragDetectListener[T](func)
     
   def onDragDetect[T <: AddDragDetectListener](func: => Unit) = 
     addDragDetectListener[T]((e: DragDetectEvent) => func)
   
+  implicit def onDragDetectImplicit[T <: AddDragDetectListener](func: DragDetectEvent => Any) = 
+    addDragDetectListener[T](func)
+    
   implicit def func2DragDetectListener(func: DragDetectEvent => Any): DragDetectListener = 
     new DragDetectListenerForwarder(func)
 
@@ -646,12 +667,15 @@ object XScalaWT {
     override def helpRequested(e: HelpEvent) = func(e)
   }
   
-  implicit def onHelp[T <: AddHelpListener](func: HelpEvent => Any) = 
+  def onHelp[T <: AddHelpListener](func: HelpEvent => Any) = 
     addHelpListener[T](func)
     
   def onHelp[T <: AddHelpListener](func: => Unit) = 
     addHelpListener[T]((e: HelpEvent) => func)
   
+  implicit def onHelpImplicit[T <: AddHelpListener](func: HelpEvent => Any) = 
+    addHelpListener[T](func)
+    
   implicit def func2HelpListener(func: HelpEvent => Any): HelpListener = 
     new HelpListenerForwarder(func)
   
@@ -681,12 +705,15 @@ object XScalaWT {
     override def menuDetected(e: MenuDetectEvent) = func(e)
   }
   
-  implicit def onMenuDetect[T <: AddMenuDetectListener](func: MenuDetectEvent => Any) = 
+  def onMenuDetect[T <: AddMenuDetectListener](func: MenuDetectEvent => Any) = 
     addMenuDetectListener[T](func)
     
   def onMenuDetect[T <: AddMenuDetectListener](func: => Unit) = 
     addMenuDetectListener[T]((e: MenuDetectEvent) => func)
   
+  implicit def onMenuDetectImplicit[T <: AddMenuDetectListener](func: MenuDetectEvent => Any) = 
+    addMenuDetectListener[T](func)
+    
   implicit def func2MenuDetectListener(func: MenuDetectEvent => Any): MenuDetectListener = 
     new MenuDetectListenerForwarder(func)
   
@@ -716,12 +743,15 @@ object XScalaWT {
     override def mouseMove(e: MouseEvent) = func(e)
   }
   
-  implicit def onMouseMove[T <: AddMouseMoveListener](func: MouseEvent => Any) = 
+  def onMouseMove[T <: AddMouseMoveListener](func: MouseEvent => Any) = 
     addMouseMoveListener[T](func)
     
   def onMouseMove[T <: AddMouseMoveListener](func: => Unit) = 
     addMouseMoveListener[T]((e: MouseEvent) => func)
   
+  implicit def onMouseMoveImplicit[T <: AddMouseMoveListener](func: MouseEvent => Any) = 
+    addMouseMoveListener[T](func)
+    
   implicit def func2MouseMoveListener(func: MouseEvent => Any): MouseMoveListener = 
     new MouseMoveListenerForwarder(func)
   
@@ -752,12 +782,15 @@ object XScalaWT {
     override def mouseScrolled(e: MouseEvent) = func(e)
   }
   
-  implicit def onMouseWheel[T <: AddMouseWheelListener](func: MouseEvent => Any) = 
+  def onMouseWheel[T <: AddMouseWheelListener](func: MouseEvent => Any) = 
     addMouseWheelListener[T](func)
     
   def onMouseWheel[T <: AddMouseWheelListener](func: => Unit) = 
     addMouseWheelListener[T]((e: MouseEvent) => func)
   
+  implicit def onMouseWheelImplicit[T <: AddMouseWheelListener](func: MouseEvent => Any) = 
+    addMouseWheelListener[T](func)
+    
   implicit def func2MouseWheelListener(func: MouseEvent => Any): MouseWheelListener = 
     new MouseWheelListenerForwarder(func)
 
@@ -772,12 +805,15 @@ object XScalaWT {
     override def paintControl(e: PaintEvent) = func(e)
   }
   
-  implicit def onPaint[T <: AddPaintListener](func: PaintEvent => Any) = 
+  def onPaint[T <: AddPaintListener](func: PaintEvent => Any) = 
     addPaintListener[T](func)
     
   def onPaint[T <: AddPaintListener](func: => Unit) = 
     addPaintListener[T]((e: PaintEvent) => func)
   
+  implicit def onPaintImplicit[T <: AddPaintListener](func: PaintEvent => Any) = 
+    addPaintListener[T](func)
+    
   implicit def func2PaintListener(func: PaintEvent => Any): PaintListener = 
     new PaintListenerForwarder(func)
 
@@ -825,12 +861,15 @@ object XScalaWT {
     override def verifyText(e: VerifyEvent) = func(e)
   }
   
-  implicit def onVerify[T <: AddVerifyListener](func: VerifyEvent => Any) = 
+  def onVerify[T <: AddVerifyListener](func: VerifyEvent => Any) = 
     addVerifyListener[T](func)
     
   def onVerify[T <: AddVerifyListener](func: => Unit) = 
     addVerifyListener[T]((e: VerifyEvent) => func)
   
+  implicit def onVerifyImplicit[T <: AddVerifyListener](func: VerifyEvent => Any) = 
+    addVerifyListener[T](func)
+    
   implicit def func2VerifyListener(func: VerifyEvent => Any): VerifyListener = 
     new VerifyListenerForwarder(func)
   
