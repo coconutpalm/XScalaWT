@@ -19,6 +19,7 @@ import org.eclipse.swt.browser._
 import org.eclipse.swt.custom._
 import org.eclipse.swt.layout._
 import org.eclipse.swt.SWT
+import org.eclipse.jface.layout.GridDataFactory
 
 import XScalaWTAPI._
 
@@ -281,6 +282,44 @@ object XScalaWT {
   
   implicit def widget2XScalaWT[W <: Widget](widget : W) = new WidgetX[W](widget)  
 
+  // Layouts here
+  
+  def fillLayout(setups: (FillLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new FillLayout, setups:_*))
+  }
+
+  def rowLayout(setups: (RowLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new RowLayout, setups:_*))
+  }
+  
+  def vertical = (_: Layout) match {
+  case row: RowLayout => row.`type` = SWT.VERTICAL
+  case fill: FillLayout => fill.`type` = SWT.VERTICAL
+  case _ => throw new IllegalArgumentException("Wrong layout class")
+  }
+  
+  def horizontal = (_: Layout) match {
+  case row: RowLayout => row.`type` = SWT.HORIZONTAL
+  case fill: FillLayout => fill.`type` = SWT.HORIZONTAL
+  case _ => throw new IllegalArgumentException("Wrong layout class")
+  }
+  
+  def formLayout(setups: (FormLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new FormLayout, setups:_*))
+  }
+  
+  def formData(width: Int = SWT.DEFAULT, height: Int = SWT.DEFAULT)(setups: (FormData => Any)*) = (c: Control) => {
+    c.setLayoutData(setupAndReturn(new FormData(width, height), setups:_*))
+  }
+  
+  def gridLayout(columns: Int = 1, equalWidth: Boolean = false)(setups: (GridLayout => Any)*) = (c: Composite) => {
+    c.setLayout(setupAndReturn(new GridLayout(columns, equalWidth), setups:_*))
+  }
+  
+  def defaultGridData = (c: Control) => GridDataFactory.defaultsFor(c).applyTo(c)
+  def modifiedDefaultGridData(setup: GridDataFactory => GridDataFactory) = 
+    (c: Control) => setup(GridDataFactory.defaultsFor(c)).applyTo(c)
+  
 //    (setups:(Browser => Any)*)
     
   //
@@ -345,7 +384,56 @@ object XScalaWT {
     def selection_=[T <: { def setSelection(value: Int) }](value: Int) =
       (subject: T) => subject.setSelection(value)
   }
+  
+  case class PimpGetText[T <: {def getText(): String; def setText(text: String)}](control: T) {
+    def text = control.getText
+    def text_=(text: String) { control.setText(text) }
+  }
+  implicit def pimpGetText[T <: {def getText(): String; def setText(text: String)}](control: T) = new PimpGetText(control)
+  
+  case class PimpGetImage[T <: {def getImage(): Image; def setImage(image: Image)}](control: T) {
+    def image = control.getImage
+    def image_=(image: Image) { control.setImage(image) }
+  }
+  implicit def pimpGetImage[T <: {def getImage(): Image; def setImage(image: Image)}](control: T) = new PimpGetImage(control)
+  
+  case class PimpGetControl[T <: {def getControl(): Control; def setControl(control: Control)}](c: T) {
+    def control = c.getControl
+    def control_=(control: Control) { c.setControl(control) }
+  }
+  implicit def pimpGetControl[T <: {def getControl(): Control; def setControl(control: Control)}](control: T) = new PimpGetControl(control)
 
+  case class PimpGetBackground[T <: {def getBackground(): Color; def setBackground(background: Color)}](control: T) {
+    def background = control.getBackground
+    def background_=(background: Color) { control.setBackground(background) }
+  }
+  implicit def pimpGetBackground[T <: {def getBackground(): Color; def setBackground(background: Color)}](control: T) = new PimpGetBackground(control)
+  
+  case class PimpGetForeground[T <: {def getForeground(): Color; def setForeground(foreground: Color)}](control: T) {
+    def foreground = control.getForeground
+    def foreground_=(foreground: Color) { control.setForeground(foreground) }
+  }
+  implicit def pimpGetForeground[T <: {def getForeground(): Color; def setForeground(foreground: Color)}](control: T) = new PimpGetForeground(control)
+  
+  case class PimpGetLayout[T <: {def getLayout(): Layout; def setLayout(layout: Layout)}](control: T) {
+    def layout = control.getLayout
+    def layout_=(layout: Layout) { control.setLayout(layout) }
+  }
+  implicit def pimpGetLayout[T <: {def getLayout(): Layout; def setLayout(layout: Layout)}](control: T) = new PimpGetLayout(control)
+  
+  case class PimpGetLayoutData[T <: {def getLayoutData(): AnyRef; def setLayoutData(layoutData: AnyRef)}](control: T) {
+    def layoutData = control.getLayoutData
+    def layoutData_=(layoutData: AnyRef) { control.setLayoutData(layoutData) }
+  }
+  implicit def pimpGetLayoutData[T <: {def getLayoutData(): AnyRef; def setLayoutData(layoutData: AnyRef)}](control: T) = new PimpGetLayoutData(control)
+  
+  // for JFace viewers
+  case class PimpGetInput[T <: {def getInput(): AnyRef; def setInput(input: AnyRef)}](control: T) {
+    def input = control.getInput
+    def input_=(input: AnyRef) { control.setInput(input) }
+  }
+  implicit def pimpGetInput[T <: {def getInput(): AnyRef; def setInput(input: AnyRef)}](control: T) = new PimpGetInput(control)
+  
   //
   // Event handling here
   //
@@ -363,7 +451,7 @@ object XScalaWT {
   def addSelectionListener[T <: AddSelectionListener](l: SelectionListener) =
     (subject: T) => subject.addSelectionListener(l)
     
-  implicit def onSelection[T <: AddSelectionListener](func: SelectionEvent => Any) =
+  def onSelection[T <: AddSelectionListener](func: SelectionEvent => Any) =
     addSelectionListener[T](func)
 
   def onSelection[T <: AddSelectionListener](normal: SelectionEvent => Any, defaultSelected: SelectionEvent => Any) =
@@ -372,6 +460,9 @@ object XScalaWT {
   // can't be => Any, or we lose type inference
   def onSelection[T <: AddSelectionListener](func: => Unit) =
     addSelectionListener[T]((e: SelectionEvent) => func)
+    
+  implicit def onSelectionImplicit[T <: AddSelectionListener](func: SelectionEvent => Any) =
+    addSelectionListener[T](func)
   
   implicit def func2SelectionListener(func: SelectionEvent => Any): SelectionListener =
     new SelectionListenerForwarder(func, func)
@@ -393,12 +484,15 @@ object XScalaWT {
     addMouseListener[T](new MouseListenerForwarder(doubleClick, down, up))
 
   // since we often only need to handle mouse down
-  implicit def onMouseDown[T <: AddMouseListener](func: MouseEvent => Any) =
+  def onMouseDown[T <: AddMouseListener](func: MouseEvent => Any) =
     addMouseListener[T](func)
     
   def onMouseDown[T <: AddMouseListener](func: => Unit) =
     addMouseListener[T]((e: MouseEvent) => func)
-  
+    
+  implicit def onMouseDownImplicit[T <: AddMouseListener](func: MouseEvent => Any) =
+    addMouseListener[T](func)
+    
   implicit def func2MouseListener(func: MouseEvent => Any): MouseListener =
     new MouseListenerForwarder(ignore, func, ignore)
   
@@ -413,11 +507,14 @@ object XScalaWT {
     override def modifyText(e: ModifyEvent) = func(e)
   }
   
-  implicit def onModify[T <: AddModifyListener](func: ModifyEvent => Any) = 
+  def onModify[T <: AddModifyListener](func: ModifyEvent => Any) = 
     addModifyListener[T](func)
     
   def onModify[T <: AddModifyListener](func: => Unit) = 
     addModifyListener[T]((e: ModifyEvent) => func)
+  
+  implicit def onModifyImplicit[T <: AddModifyListener](func: ModifyEvent => Any) = 
+    addModifyListener[T](func)
   
   implicit def func2ModifyListener(func: ModifyEvent => Any): ModifyListener = 
     new ModifyListenerForwarder(func)
@@ -433,11 +530,14 @@ object XScalaWT {
     override def keyTraversed(e : TraverseEvent) = func(e)
   }
   
-  implicit def onTraverse[T <: AddTraverseListener](func: TraverseEvent => Any) =
+  def onTraverse[T <: AddTraverseListener](func: TraverseEvent => Any) =
     addTraverseListener[T](func)
     
   def onTraverse[T <: AddTraverseListener](func: => Unit) =
     addTraverseListener[T]((e: TraverseEvent) => func)
+  
+  implicit def onTraverseImplicit[T <: AddTraverseListener](func: TraverseEvent => Any) =
+    addTraverseListener[T](func)
   
   implicit def func2TraverseListener(func: TraverseEvent => Any): TraverseListener = 
     new TraverseListenerForwarder(func)
@@ -453,11 +553,14 @@ object XScalaWT {
     override def widgetArmed(e: ArmEvent) = func(e)
   }
   
-  implicit def onArm[T <: AddArmListener](func: ArmEvent => Any) = 
+  def onArm[T <: AddArmListener](func: ArmEvent => Any) = 
     addArmListener[T](func)
     
   def onArm[T <: AddArmListener](func: => Unit) = 
     addArmListener[T]((e: ArmEvent) => func)
+  
+  implicit def onArmImplicit[T <: AddArmListener](func: ArmEvent => Any) = 
+    addArmListener[T](func)
   
   implicit def func2ArmListener(func: ArmEvent => Any): ArmListener = 
     new ArmListenerForwarder(func)
@@ -488,12 +591,15 @@ object XScalaWT {
     override def widgetDisposed(e: DisposeEvent) = func(e)
   }
   
-  implicit def onDispose[T <: AddDisposeListener](func: DisposeEvent => Any) = 
+  def onDispose[T <: AddDisposeListener](func: DisposeEvent => Any) = 
     addDisposeListener[T](func)
     
   def onDispose[T <: AddDisposeListener](func: => Unit) = 
     addDisposeListener[T]((e: DisposeEvent) => func)
   
+  implicit def onDisposeImplicit[T <: AddDisposeListener](func: DisposeEvent => Any) = 
+    addDisposeListener[T](func)
+    
   implicit def func2DisposeListener(func: DisposeEvent => Any): DisposeListener = 
     new DisposeListenerForwarder(func)
   
@@ -508,12 +614,15 @@ object XScalaWT {
     override def dragDetected(e: DragDetectEvent) = func(e)
   }
   
-  implicit def onDragDetect[T <: AddDragDetectListener](func: DragDetectEvent => Any) = 
+  def onDragDetect[T <: AddDragDetectListener](func: DragDetectEvent => Any) = 
     addDragDetectListener[T](func)
     
   def onDragDetect[T <: AddDragDetectListener](func: => Unit) = 
     addDragDetectListener[T]((e: DragDetectEvent) => func)
   
+  implicit def onDragDetectImplicit[T <: AddDragDetectListener](func: DragDetectEvent => Any) = 
+    addDragDetectListener[T](func)
+    
   implicit def func2DragDetectListener(func: DragDetectEvent => Any): DragDetectListener = 
     new DragDetectListenerForwarder(func)
 
@@ -558,12 +667,15 @@ object XScalaWT {
     override def helpRequested(e: HelpEvent) = func(e)
   }
   
-  implicit def onHelp[T <: AddHelpListener](func: HelpEvent => Any) = 
+  def onHelp[T <: AddHelpListener](func: HelpEvent => Any) = 
     addHelpListener[T](func)
     
   def onHelp[T <: AddHelpListener](func: => Unit) = 
     addHelpListener[T]((e: HelpEvent) => func)
   
+  implicit def onHelpImplicit[T <: AddHelpListener](func: HelpEvent => Any) = 
+    addHelpListener[T](func)
+    
   implicit def func2HelpListener(func: HelpEvent => Any): HelpListener = 
     new HelpListenerForwarder(func)
   
@@ -593,12 +705,15 @@ object XScalaWT {
     override def menuDetected(e: MenuDetectEvent) = func(e)
   }
   
-  implicit def onMenuDetect[T <: AddMenuDetectListener](func: MenuDetectEvent => Any) = 
+  def onMenuDetect[T <: AddMenuDetectListener](func: MenuDetectEvent => Any) = 
     addMenuDetectListener[T](func)
     
   def onMenuDetect[T <: AddMenuDetectListener](func: => Unit) = 
     addMenuDetectListener[T]((e: MenuDetectEvent) => func)
   
+  implicit def onMenuDetectImplicit[T <: AddMenuDetectListener](func: MenuDetectEvent => Any) = 
+    addMenuDetectListener[T](func)
+    
   implicit def func2MenuDetectListener(func: MenuDetectEvent => Any): MenuDetectListener = 
     new MenuDetectListenerForwarder(func)
   
@@ -628,12 +743,15 @@ object XScalaWT {
     override def mouseMove(e: MouseEvent) = func(e)
   }
   
-  implicit def onMouseMove[T <: AddMouseMoveListener](func: MouseEvent => Any) = 
+  def onMouseMove[T <: AddMouseMoveListener](func: MouseEvent => Any) = 
     addMouseMoveListener[T](func)
     
   def onMouseMove[T <: AddMouseMoveListener](func: => Unit) = 
     addMouseMoveListener[T]((e: MouseEvent) => func)
   
+  implicit def onMouseMoveImplicit[T <: AddMouseMoveListener](func: MouseEvent => Any) = 
+    addMouseMoveListener[T](func)
+    
   implicit def func2MouseMoveListener(func: MouseEvent => Any): MouseMoveListener = 
     new MouseMoveListenerForwarder(func)
   
@@ -664,12 +782,15 @@ object XScalaWT {
     override def mouseScrolled(e: MouseEvent) = func(e)
   }
   
-  implicit def onMouseWheel[T <: AddMouseWheelListener](func: MouseEvent => Any) = 
+  def onMouseWheel[T <: AddMouseWheelListener](func: MouseEvent => Any) = 
     addMouseWheelListener[T](func)
     
   def onMouseWheel[T <: AddMouseWheelListener](func: => Unit) = 
     addMouseWheelListener[T]((e: MouseEvent) => func)
   
+  implicit def onMouseWheelImplicit[T <: AddMouseWheelListener](func: MouseEvent => Any) = 
+    addMouseWheelListener[T](func)
+    
   implicit def func2MouseWheelListener(func: MouseEvent => Any): MouseWheelListener = 
     new MouseWheelListenerForwarder(func)
 
@@ -684,12 +805,15 @@ object XScalaWT {
     override def paintControl(e: PaintEvent) = func(e)
   }
   
-  implicit def onPaint[T <: AddPaintListener](func: PaintEvent => Any) = 
+  def onPaint[T <: AddPaintListener](func: PaintEvent => Any) = 
     addPaintListener[T](func)
     
   def onPaint[T <: AddPaintListener](func: => Unit) = 
     addPaintListener[T]((e: PaintEvent) => func)
   
+  implicit def onPaintImplicit[T <: AddPaintListener](func: PaintEvent => Any) = 
+    addPaintListener[T](func)
+    
   implicit def func2PaintListener(func: PaintEvent => Any): PaintListener = 
     new PaintListenerForwarder(func)
 
@@ -737,12 +861,15 @@ object XScalaWT {
     override def verifyText(e: VerifyEvent) = func(e)
   }
   
-  implicit def onVerify[T <: AddVerifyListener](func: VerifyEvent => Any) = 
+  def onVerify[T <: AddVerifyListener](func: VerifyEvent => Any) = 
     addVerifyListener[T](func)
     
   def onVerify[T <: AddVerifyListener](func: => Unit) = 
     addVerifyListener[T]((e: VerifyEvent) => func)
   
+  implicit def onVerifyImplicit[T <: AddVerifyListener](func: VerifyEvent => Any) = 
+    addVerifyListener[T](func)
+    
   implicit def func2VerifyListener(func: VerifyEvent => Any): VerifyListener = 
     new VerifyListenerForwarder(func)
   
@@ -750,12 +877,68 @@ object XScalaWT {
   // Other convenience methods
   //
   
-  def display = Display.getDefault
+  implicit def display = Display.getDefault
 
-  implicit def int2Color(swtColorConstant : Int) = display.getSystemColor(swtColorConstant)
+  implicit def int2Color(swtColorConstant : Int)(implicit d: Display) = 
+    d.getSystemColor(swtColorConstant)
 
   implicit def func2Runnable(f : => Any) = new Runnable { override def run() = f }
+  
+  implicit def tuple2Point(pair: (Int, Int)) = new Point(pair._1, pair._2)
+  
+  def syncExecInUIThread(f: => Any)(implicit d: Display) {
+    // is it worth checking if we are already on the UI thread?
+    d.syncExec(f)
+  }
+
+  def asyncExecInUIThread(f: => Any)(implicit d: Display) {
+    d.asyncExec(f)
+  }
+  
+  import scala.util.control.Exception._
+
+  def syncEvalInUIThread[A](f: => A)(implicit d: Display): A = {
+    @volatile var result: Either[Throwable, A] = null
+    d.syncExec {
+      result = allCatch.either(f)
+    }
+    result match {
+    case Left(e) => throw e
+    case Right(res) => res
+    }
+  }
+
+  import scala.parallel.Future // Or java.util.concurrent.Future?
+  def asyncEvalInUIThread[A](f: => A)(implicit d: Display): Future[A] = {
+    val future = new Future[A] {
+      import java.util.concurrent.locks.ReentrantLock
+
+      private val lock = new ReentrantLock
+      private val doneCond = lock.newCondition
+      @volatile private var result: Option[Either[Throwable, A]] = None
+
+      def isDone = result.isDefined
+
+      def apply() = {
+        while (!isDone) { doneCond.wait() }
+
+        result.get match {
+        case Left(e) => throw e
+        case Right(res) => res
+        }
+      }
+
+      def begin() {
+        d.asyncExec {
+          result = Some(allCatch.either(f))
+          doneCond.signalAll()
+        }
+      }
+    }
+    
+    future.begin()
+    future
+  }
 
   private def ignore[T]: T => Unit = (t: T) => {}
 }
-
