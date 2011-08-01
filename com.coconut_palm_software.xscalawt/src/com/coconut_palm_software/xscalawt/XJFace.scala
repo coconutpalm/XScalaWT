@@ -1,9 +1,11 @@
 package com.coconut_palm_software.xscalawt
 
+import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.jface.dialogs.IPageChangedListener
 import org.eclipse.jface.dialogs.IPageChangingListener
 import org.eclipse.jface.dialogs.PageChangedEvent
 import org.eclipse.jface.dialogs.PageChangingEvent
+import org.eclipse.jface.operation.IRunnableWithProgress
 import org.eclipse.jface.util.IOpenEventListener
 import org.eclipse.jface.util.IPropertyChangeListener
 import org.eclipse.jface.util.OpenStrategy
@@ -276,4 +278,7 @@ object XJFace {
   case class LabelProviderListener(func: LabelProviderChangedEvent => Any) extends ILabelProviderListener {
     def labelProviderChanged(e: LabelProviderChangedEvent) { func(e) }
   }
+  
+  implicit def func2RunnableWithProgress(f : IProgressMonitor => Any) = 
+    new IRunnableWithProgress { override def run(m: IProgressMonitor) { f(m) } }
 }
