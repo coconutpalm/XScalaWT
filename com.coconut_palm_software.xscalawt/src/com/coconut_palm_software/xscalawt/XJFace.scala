@@ -1,43 +1,69 @@
 package com.coconut_palm_software.xscalawt
 
-import org.eclipse.jface.viewers.Viewer
-import XScalaWTAPI._
-import org.eclipse.jface.viewers.ISelectionChangedListener
-import org.eclipse.jface.viewers.SelectionChangedEvent
-import org.eclipse.jface.viewers.ViewerColumn
-import org.eclipse.jface.viewers.ITreeViewerListener
-import org.eclipse.jface.viewers.TreeExpansionEvent
-import org.eclipse.jface.viewers.ISelectionProvider
-import org.eclipse.jface.viewers.IPostSelectionProvider
-import org.eclipse.jface.viewers.AbstractTreeViewer
-import org.eclipse.jface.util.IPropertyChangeListener
-import org.eclipse.jface.util.PropertyChangeEvent
-import org.eclipse.jface.dialogs.IPageChangingListener
-import org.eclipse.jface.dialogs.PageChangingEvent
-import org.eclipse.jface.wizard.WizardDialog
 import org.eclipse.jface.dialogs.IPageChangedListener
+import org.eclipse.jface.dialogs.IPageChangingListener
 import org.eclipse.jface.dialogs.PageChangedEvent
-import org.eclipse.jface.viewers.OpenEvent
-import org.eclipse.jface.viewers.IOpenListener
-import org.eclipse.jface.viewers.StructuredViewer
+import org.eclipse.jface.dialogs.PageChangingEvent
 import org.eclipse.jface.util.IOpenEventListener
+import org.eclipse.jface.util.IPropertyChangeListener
 import org.eclipse.jface.util.OpenStrategy
-import org.eclipse.swt.events.SelectionEvent
-import org.eclipse.jface.viewers.IDoubleClickListener
-import org.eclipse.jface.viewers.DoubleClickEvent
-import org.eclipse.jface.viewers.deferred.IConcurrentModelListener
+import org.eclipse.jface.util.PropertyChangeEvent
 import org.eclipse.jface.viewers.deferred.IConcurrentModel
-import org.eclipse.jface.viewers.ICheckStateListener
+import org.eclipse.jface.viewers.deferred.IConcurrentModelListener
+import org.eclipse.jface.viewers.AbstractTreeViewer
 import org.eclipse.jface.viewers.CheckStateChangedEvent
-import org.eclipse.jface.viewers.ICheckable
-import org.eclipse.jface.viewers.ILabelProviderListener
-import org.eclipse.jface.viewers.LabelProviderChangedEvent
+import org.eclipse.jface.viewers.ComboViewer
+import org.eclipse.jface.viewers.DoubleClickEvent
 import org.eclipse.jface.viewers.IBaseLabelProvider
+import org.eclipse.jface.viewers.ICheckStateListener
+import org.eclipse.jface.viewers.ICheckable
+import org.eclipse.jface.viewers.IDoubleClickListener
+import org.eclipse.jface.viewers.ILabelProviderListener
+import org.eclipse.jface.viewers.IOpenListener
+import org.eclipse.jface.viewers.IPostSelectionProvider
+import org.eclipse.jface.viewers.ISelectionChangedListener
+import org.eclipse.jface.viewers.ISelectionProvider
+import org.eclipse.jface.viewers.ITreeViewerListener
+import org.eclipse.jface.viewers.LabelProviderChangedEvent
+import org.eclipse.jface.viewers.ListViewer
+import org.eclipse.jface.viewers.OpenEvent
+import org.eclipse.jface.viewers.SelectionChangedEvent
+import org.eclipse.jface.viewers.StructuredViewer
+import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.TableViewerColumn
+import org.eclipse.jface.viewers.TreeExpansionEvent
+import org.eclipse.jface.viewers.TreeViewer
+import org.eclipse.jface.viewers.TreeViewerColumn
+import org.eclipse.jface.viewers.Viewer
+import org.eclipse.jface.viewers.ViewerColumn
+import org.eclipse.jface.wizard.WizardDialog
+import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.SWT
+import XScalaWTAPI._
 
 object XJFace {
   implicit def viewer2XScalaWT[W <: Viewer](viewer: W) = new WidgetX[W](viewer)
   implicit def viewerColumn2XScalaWT[W <: ViewerColumn](viewerColumn: W) = new WidgetX[W](viewerColumn)
 
+  def listViewer(setups:(ListViewer => Any)*) = (parent : Composite) =>
+    setupAndReturn(new ListViewer(parent, SWT.BORDER), setups : _*)
+
+  def comboViewer(setups:(ComboViewer => Any)*) = (parent : Composite) =>
+    setupAndReturn(new ComboViewer(parent, SWT.BORDER), setups : _*)
+
+  def tableViewer(setups:(TableViewer => Any)*) = (parent : Composite) =>
+    setupAndReturn(new TableViewer(parent, SWT.BORDER), setups : _*)
+
+  def treeViewer(setups:(TreeViewer => Any)*) = (parent : Composite) =>
+    setupAndReturn(new TreeViewer(parent, SWT.BORDER), setups : _*)
+
+  def tableViewerColumn(setups:(TableViewerColumn => Any)*) = (parent : TableViewer) =>
+    setupAndReturn(new TableViewerColumn(parent, SWT.BORDER), setups : _*)
+
+  def treeViewerColumn(setups:(TreeViewerColumn => Any)*) = (parent : TreeViewer) =>
+    setupAndReturn(new TreeViewerColumn(parent, SWT.BORDER), setups : _*)
+  
   def addSelectionChangedListener(l: ISelectionChangedListener) =
     (subject: ISelectionProvider) => subject.addSelectionChangedListener(l)
 
