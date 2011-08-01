@@ -269,17 +269,6 @@ object XScalaWT {
     item
   }
   
-  // Start with any Widget and add children from there...
-  
-  class WidgetX[W](w : W) {
-    def apply(setups : (W => Any)*) : W = {
-      setupAndReturn(w, setups : _*)
-    }
-    def contains(setups : (W => Any)*) : W = {
-      setupAndReturn(w, setups : _*)
-    }
-  }
-  
   implicit def widget2XScalaWT[W <: Widget](widget : W) = new WidgetX[W](widget)  
 
   // Layouts here
@@ -939,6 +928,4 @@ object XScalaWT {
     future.begin()
     future
   }
-
-  private def ignore[T]: T => Unit = (t: T) => {}
 }
