@@ -280,17 +280,17 @@ object XScalaWT {
   def rowLayout(setups: (RowLayout => Any)*) = (c: Composite) => {
     c.setLayout(setupAndReturn(new RowLayout, setups:_*))
   }
-  
+
   def vertical = (_: Layout) match {
-  case row: RowLayout => row.`type` = SWT.VERTICAL
-  case fill: FillLayout => fill.`type` = SWT.VERTICAL
-  case _ => throw new IllegalArgumentException("Wrong layout class")
+    case row: RowLayout => row.`type` = SWT.VERTICAL
+    case fill: FillLayout => fill.`type` = SWT.VERTICAL
+    case _ => throw new IllegalArgumentException("Wrong layout class")
   }
-  
+
   def horizontal = (_: Layout) match {
-  case row: RowLayout => row.`type` = SWT.HORIZONTAL
-  case fill: FillLayout => fill.`type` = SWT.HORIZONTAL
-  case _ => throw new IllegalArgumentException("Wrong layout class")
+    case row: RowLayout => row.`type` = SWT.HORIZONTAL
+    case fill: FillLayout => fill.`type` = SWT.HORIZONTAL
+    case _ => throw new IllegalArgumentException("Wrong layout class")
   }
   
   def formLayout(setups: (FormLayout => Any)*) = (c: Composite) => {
@@ -306,11 +306,15 @@ object XScalaWT {
   }
   
   def defaultGridData = (c: Control) => GridDataFactory.defaultsFor(c).applyTo(c)
+  
   def modifiedDefaultGridData(setup: GridDataFactory => GridDataFactory) = 
     (c: Control) => setup(GridDataFactory.defaultsFor(c)).applyTo(c)
+
+  def fillGridData = (c: Control) => GridDataFactory.fillDefaults().applyTo(c)
   
-//    (setups:(Browser => Any)*)
-    
+  def modifiedFillGridData(setup: GridDataFactory => GridDataFactory) = 
+    (c: Control) => setup(GridDataFactory.fillDefaults()).applyTo(c)
+  
   //
   // Declarative setters here
   //
