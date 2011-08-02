@@ -43,6 +43,8 @@ import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.SWT
 import XScalaWTAPI._
+import com.coconut_palm_software.xscalawt.viewers.TableViewerBuilder
+import com.coconut_palm_software.xscalawt.viewers.TreeViewerBuilder
 
 object XJFace {
   implicit def viewer2XScalaWT[W <: Viewer](viewer: W) = new WidgetX[W](viewer)
@@ -55,16 +57,30 @@ object XJFace {
     setupAndReturn(new ComboViewer(parent, SWT.BORDER), setups: _*)
 
   def tableViewer(setups: (TableViewer => Any)*) = (parent: Composite) =>
-    setupAndReturn(new TableViewer(parent, SWT.BORDER), setups: _*)
+    setupAndReturn(new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER), setups: _*)
 
   def treeViewer(setups: (TreeViewer => Any)*) = (parent: Composite) =>
-    setupAndReturn(new TreeViewer(parent, SWT.BORDER), setups: _*)
+    setupAndReturn(new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER), setups: _*)
 
   def tableViewerColumn(setups: (TableViewerColumn => Any)*) = (parent: TableViewer) =>
-    setupAndReturn(new TableViewerColumn(parent, SWT.BORDER), setups: _*)
+    setupAndReturn(new TableViewerColumn(parent, SWT.LEFT), setups: _*)
 
   def treeViewerColumn(setups: (TreeViewerColumn => Any)*) = (parent: TreeViewer) =>
-    setupAndReturn(new TreeViewerColumn(parent, SWT.BORDER), setups: _*)
+    setupAndReturn(new TreeViewerColumn(parent, SWT.LEFT), setups: _*)
+
+  def tableViewerBuilder[A](setups: (TableViewerBuilder[A] => Any)*)(viewerSetups: (TableViewer => Any)*) = (parent: Composite) => {
+    val builder = setupAndReturn(new TableViewerBuilder[A](parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER), setups: _*)
+    val viewer = builder.viewer
+    viewerSetups.foreach(_(viewer))
+    builder
+  }
+
+  def treeViewerBuilder[A](setups: (TreeViewerBuilder[A] => Any)*)(viewerSetups: (TreeViewer => Any)*) = (parent: Composite) => {
+    val builder = setupAndReturn(new TreeViewerBuilder[A](parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER), setups: _*)
+    val viewer = builder.viewer
+    viewerSetups.foreach(_(viewer))
+    builder
+  }
 
   def addSelectionChangedListener(l: ISelectionChangedListener) =
     (subject: ISelectionProvider) => subject.addSelectionChangedListener(l)
