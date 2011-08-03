@@ -895,16 +895,15 @@ object XScalaWT {
   import scala.parallel.Future // Or java.util.concurrent.Future?
   def asyncEvalInUIThread[A](f: => A)(implicit d: Display): Future[A] = {
     val future = new Future[A] {
-      import java.util.concurrent.locks.ReentrantLock
+      import java.util.concurrent.CountDownLatch
 
-      private val lock = new ReentrantLock
-      private val doneCond = lock.newCondition
+      private val latch = new CountDownLatch(1)
       @volatile private var result: Option[Either[Throwable, A]] = None
 
       def isDone = result.isDefined
 
       def apply() = {
-        while (!isDone) { doneCond.wait() }
+        if (!isDone) { latch.await() }
 
         result.get match {
           case Left(e) => throw e
@@ -915,7 +914,7 @@ object XScalaWT {
       def begin() {
         d.asyncExec {
           result = Some(allCatch.either(f))
-          doneCond.signalAll()
+          latch.countDown()
         }
       }
     }
