@@ -14,7 +14,7 @@ import org.eclipse.jface.viewers.EditingSupport
 import org.eclipse.jface.viewers.ColumnViewer
 import org.eclipse.jface.viewers.CellEditor
 
-class CellEditingSupport[A, B](viewer: ColumnViewer, editor: CellEditor, valueGetter: A => B, valueSetter: (A, B) => Unit) extends EditingSupport(viewer) {
+class CellEditingSupport[A, B](viewer: ColumnViewer, editor: CellEditor, valueGetter: A => B, valueSetter: (A, B) => Unit, editorValueGetter: AnyRef => B) extends EditingSupport(viewer) {
   def getCellEditor(element: AnyRef) = editor
   
   def canEdit(element: AnyRef) = true
@@ -28,7 +28,7 @@ class CellEditingSupport[A, B](viewer: ColumnViewer, editor: CellEditor, valueGe
   }
   
   def setValue(element: AnyRef, value: AnyRef) {
-    valueSetter(element.asInstanceOf[A], value.asInstanceOf[B])
+    valueSetter(element.asInstanceOf[A], editorValueGetter(value))
     viewer.refresh(element)
   }
 }

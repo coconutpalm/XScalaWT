@@ -79,20 +79,28 @@ abstract class ViewerColumnBuilder[A, B](builder: ViewerBuilder[A], valueGetter:
   }
 
   /**
-   * Makes the column cells editable using a custom cell editor. The given
-   * valueSetter will be responsible for formatting the value for the
-   * editor and converting it back to a new value.
+   * Makes the column cells editable.
+   * 
+   * @param valueSetter sets the property of the object corresponding to the row
+   * 
+   * @param cellEditor the cell editor. Must belong to the builder's 
+   * control (table or tree). By default TextCellEditor is used.
+   * 
+   * @param editorValueGetter converts the value set by the editor into a B to 
+   * call valueSetter. By default this is a cast.
    */
-  def editable(valueSetter: (A, B) => Unit, cellEditor: CellEditor = new TextCellEditor(builder.control)): this.type = {
+  def editable(valueSetter: (A, B) => Unit, cellEditor: CellEditor = new TextCellEditor(builder.control), editorValueGetter: AnyRef => B = (_: AnyRef).asInstanceOf[B]): this.type = {
     if (cellEditor.getControl.getParent != builder.control) {
       throw new RuntimeException("Parent of cell editor needs to be the builder's control!")
     }
-    _editingSupport = Some(new CellEditingSupport(builder.viewer, cellEditor, valueGetter, valueSetter))
+    _editingSupport = Some(new CellEditingSupport(builder.viewer, cellEditor, valueGetter, valueSetter, editorValueGetter))
     this
   }
 
   /**
-   * Sets an ordering to sort by.
+   * Makes the column sortable
+   * 
+   * @param ord the ordering to use
    */
   def sortable(implicit ord: Ordering[B]): this.type = {
     _sortBy = Some(ord)
@@ -100,7 +108,9 @@ abstract class ViewerColumnBuilder[A, B](builder: ViewerBuilder[A], valueGetter:
   }
 
   /**
-   * Sets this column as default sort column
+   * Sets this column as the default sort column.
+   * 
+   * If called on several column builders, the last one wins.
    */
   def useAsDefaultSortColumn(): this.type = {
     _defaultSort = true
@@ -161,12 +171,12 @@ class TreeViewerColumnBuilder[A, B](builder: TreeViewerBuilder[A], valueGetter: 
   def baseColumn(column: Column) = column.getColumn
 
   def makeColumnSortable(column: Column, ord: Ordering[B]) {
-    val tableColumn = column.getColumn
+    val treeColumn = column.getColumn
     val ordOnObject = ord.on[Object](x => valueGetter(x.asInstanceOf[A]))
-    tableColumn.setData(SortColumnComparator.SORT_BY, ordOnObject)
-    tableColumn.addSelectionListener(builder.sortSelectionListener)
+    treeColumn.setData(SortColumnComparator.SORT_BY, ordOnObject)
+    treeColumn.addSelectionListener(builder.sortSelectionListener)
     if (_defaultSort) {
-      builder.tree.setSortColumn(tableColumn)
+      builder.tree.setSortColumn(treeColumn)
       builder.tree.setSortDirection(SWT.UP)
     }
   }
