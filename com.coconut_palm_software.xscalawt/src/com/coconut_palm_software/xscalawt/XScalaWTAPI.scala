@@ -19,6 +19,17 @@ import org.eclipse.jface.layout._
  * clients to extend XScalaWT.
  */
 object XScalaWTAPI {
+  // Start with any Widget and add children from there...
+  
+  class WidgetX[W](w : W) {
+    def apply(setups : (W => Any)*) : W = {
+      setupAndReturn(w, setups : _*)
+    }
+    def contains(setups : (W => Any)*) : W = {
+      setupAndReturn(w, setups : _*)
+    }
+  }
+    
   /**
    * def setup[T].  Set up a new control and call all of its setup functions.
    * 
@@ -42,4 +53,6 @@ object XScalaWTAPI {
     }
     control
   }
+
+  def ignore[T]: T => Unit = (t: T) => {}  
 }
