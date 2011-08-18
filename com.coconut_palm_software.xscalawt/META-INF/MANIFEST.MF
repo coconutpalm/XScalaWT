@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XScalaWT
 Bundle-Vendor: Coconut Palm Software
 Bundle-SymbolicName: com.coconut_palm_software.xscalawt
-Bundle-Version: 1.0.0
+Bundle-Version: 1.2.0
 Require-Bundle: org.eclipse.swt,
  org.eclipse.jface,
  org.eclipse.core.databinding,
@@ -11,5 +11,6 @@ Require-Bundle: org.eclipse.swt,
  org.eclipse.core.databinding.property,
  org.eclipse.jface.databinding,
  org.eclipse.core.runtime
-Export-Package: com.coconut_palm_software.xscalawt
+Export-Package: com.coconut_palm_software.xscalawt,
+ com.coconut_palm_software.xscalawt.viewers
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
