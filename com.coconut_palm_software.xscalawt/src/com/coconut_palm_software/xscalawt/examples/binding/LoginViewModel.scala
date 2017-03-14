@@ -11,7 +11,7 @@
 package com.coconut_palm_software.xscalawt
 package examples.binding
 
-import reflect.BeanProperty
+import scala.beans.BeanProperty
 
 class LoginViewModel {
   @BeanProperty

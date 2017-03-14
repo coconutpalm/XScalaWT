@@ -891,8 +891,12 @@ object XScalaWT {
       case Right(res) => res
     }
   }
+  
+  
+/* TODO: reimplement this with newer future class
+  // import scala.parallel.future
+  import scala.concurrent._ 
 
-  import scala.parallel.Future // Or java.util.concurrent.Future?
   def asyncEvalInUIThread[A](f: => A)(implicit d: Display): Future[A] = {
     val future = new Future[A] {
       import java.util.concurrent.CountDownLatch
@@ -917,9 +921,11 @@ object XScalaWT {
           latch.countDown()
         }
       }
+
     }
 
     future.begin()
     future
   }
+*/
 }

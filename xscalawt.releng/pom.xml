@@ -10,7 +10,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<scala.version>2.9.0-1</scala.version>
+		<scala.version>2.11.7</scala.version>
 		<tycho-version>0.12.0</tycho-version>
 		<maven-scala-plugin-version>2.15.2</maven-scala-plugin-version>
 		<encoding>UTF-8</encoding>
