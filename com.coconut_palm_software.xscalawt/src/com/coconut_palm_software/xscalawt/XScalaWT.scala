@@ -336,7 +336,7 @@ object XScalaWT {
    */
   object Assignments {
 
-    private def nothing: Nothing = error("this method is not meant to be called")
+    private def nothing: Nothing = sys.error("this method is not meant to be called")
 
     // cannot use text and text_= as they are already builders for the Text widget
     def caption(implicit ev: Nothing) = nothing
