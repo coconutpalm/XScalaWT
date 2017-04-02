@@ -14,6 +14,7 @@ package com.coconut_palm_software.xscalawt
 
 import reflect.ClassManifest
 import java.lang.reflect._
+
 import org.eclipse.swt.events._
 import org.eclipse.swt.graphics._
 import org.eclipse.swt.widgets._
@@ -22,23 +23,35 @@ import org.eclipse.swt.custom._
 import org.eclipse.swt.layout._
 import org.eclipse.swt.SWT
 import org.eclipse.jface.layout.GridDataFactory
-
 import XScalaWTAPI._
 
+import scala.language.experimental.macros
+import scala.reflect.macros.blackbox
+
 object XScalaWT {
+  private object XScalaWTMacros {
+    def impl[T : c.WeakTypeTag](c: blackbox.Context)
+                               (style: c.Tree)(setups: c.Tree*) = {
+      import c.universe._
+
+      val t = implicitly[c.WeakTypeTag[T]].tpe
+      val composite = TermName(c.freshName("composite"))
+      q"""
+        ($composite: _root_.org.eclipse.swt.widgets.Composite) =>
+          _root_.com.coconut_palm_software.xscalawt.XScalaWTAPI.setupAndReturn[$t](
+            new $t($composite, ${c.untypecheck(style)}),
+            ..${setups.map(x => c.untypecheck(x))}
+          )
+      """
+    }
+  }
+
   /**
    * The manual, "specify everything" syntax.  Useful when none of the convenience methods works.
    * <p>
    * Note, depends on ClassManifest[T] which is still experimental.
    */
-  def *[T: ClassManifest](style: Int)(setups: (T => Any)*) = { (parent: Composite) =>
-    val controlClass: Class[T] = classManifest[T].erasure.asInstanceOf[Class[T]]
-    val constructor = controlClass.getDeclaredConstructor(classOf[Composite], classOf[Int])
-    constructor.setAccessible(true)
-    val control = constructor.newInstance(parent, style.asInstanceOf[Object]).asInstanceOf[T]
-    setups.foreach(setup => setup(control))
-    control
-  }
+  def *[T](style: Int)(setups: (T => Any)*): Composite => T = macro XScalaWTMacros.impl[T]
 
   // Convenience methods, one or more per concrete SWT class
 
