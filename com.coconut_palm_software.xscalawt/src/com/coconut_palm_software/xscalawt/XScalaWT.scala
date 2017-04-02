@@ -392,54 +392,54 @@ object XScalaWT {
       (subject: T) => subject.setSelection(value)
   }
 
-  case class PimpGetText[T <: { def getText : String; def setText(text: String) }](control: T) {
+  case class PimpGetText[T <: { def getText() : String; def setText(text: String) }](control: T) {
     def text = control.getText
     def text_=(text: String) { control.setText(text) }
   }
-  implicit def pimpGetText[T <: { def getText : String; def setText(text: String) }](control: T): PimpGetText[T] = PimpGetText(control)
+  implicit def pimpGetText[T <: { def getText() : String; def setText(text: String) }](control: T): PimpGetText[T] = PimpGetText(control)
 
-  case class PimpGetImage[T <: { def getImage : Image; def setImage(image: Image) }](control: T) {
+  case class PimpGetImage[T <: { def getImage() : Image; def setImage(image: Image) }](control: T) {
     def image = control.getImage
     def image_=(image: Image) { control.setImage(image) }
   }
-  implicit def pimpGetImage[T <: { def getImage : Image; def setImage(image: Image) }](control: T): PimpGetImage[T] = PimpGetImage(control)
+  implicit def pimpGetImage[T <: { def getImage() : Image; def setImage(image: Image) }](control: T): PimpGetImage[T] = PimpGetImage(control)
 
-  case class PimpGetControl[T <: { def getControl : Control; def setControl(control: Control) }](c: T) {
+  case class PimpGetControl[T <: { def getControl() : Control; def setControl(control: Control) }](c: T) {
     def control = c.getControl
     def control_=(control: Control) { c.setControl(control) }
   }
-  implicit def pimpGetControl[T <: { def getControl : Control; def setControl(control: Control) }](control: T): PimpGetControl[T] = PimpGetControl(control)
+  implicit def pimpGetControl[T <: { def getControl() : Control; def setControl(control: Control) }](control: T): PimpGetControl[T] = PimpGetControl(control)
 
-  case class PimpGetBackground[T <: { def getBackground : Color; def setBackground(background: Color) }](control: T) {
+  case class PimpGetBackground[T <: { def getBackground() : Color; def setBackground(background: Color) }](control: T) {
     def background = control.getBackground
     def background_=(background: Color) { control.setBackground(background) }
   }
-  implicit def pimpGetBackground[T <: { def getBackground : Color; def setBackground(background: Color) }](control: T): PimpGetBackground[T] = PimpGetBackground(control)
+  implicit def pimpGetBackground[T <: { def getBackground() : Color; def setBackground(background: Color) }](control: T): PimpGetBackground[T] = PimpGetBackground(control)
 
-  case class PimpGetForeground[T <: { def getForeground : Color; def setForeground(foreground: Color) }](control: T) {
+  case class PimpGetForeground[T <: { def getForeground() : Color; def setForeground(foreground: Color) }](control: T) {
     def foreground = control.getForeground
     def foreground_=(foreground: Color) { control.setForeground(foreground) }
   }
-  implicit def pimpGetForeground[T <: { def getForeground : Color; def setForeground(foreground: Color) }](control: T): PimpGetForeground[T] = PimpGetForeground(control)
+  implicit def pimpGetForeground[T <: { def getForeground() : Color; def setForeground(foreground: Color) }](control: T): PimpGetForeground[T] = PimpGetForeground(control)
 
-  case class PimpGetLayout[T <: { def getLayout : Layout; def setLayout(layout: Layout) }](control: T) {
+  case class PimpGetLayout[T <: { def getLayout() : Layout; def setLayout(layout: Layout) }](control: T) {
     def layout = control.getLayout
     def layout_=(layout: Layout) { control.setLayout(layout) }
   }
-  implicit def pimpGetLayout[T <: { def getLayout : Layout; def setLayout(layout: Layout) }](control: T): PimpGetLayout[T] = PimpGetLayout(control)
+  implicit def pimpGetLayout[T <: { def getLayout() : Layout; def setLayout(layout: Layout) }](control: T): PimpGetLayout[T] = PimpGetLayout(control)
 
-  case class PimpGetLayoutData[T <: { def getLayoutData : AnyRef; def setLayoutData(layoutData: AnyRef) }](control: T) {
+  case class PimpGetLayoutData[T <: { def getLayoutData() : AnyRef; def setLayoutData(layoutData: AnyRef) }](control: T) {
     def layoutData = control.getLayoutData
     def layoutData_=(layoutData: AnyRef) { control.setLayoutData(layoutData) }
   }
-  implicit def pimpGetLayoutData[T <: { def getLayoutData : AnyRef; def setLayoutData(layoutData: AnyRef) }](control: T): PimpGetLayoutData[T] = PimpGetLayoutData(control)
+  implicit def pimpGetLayoutData[T <: { def getLayoutData() : AnyRef; def setLayoutData(layoutData: AnyRef) }](control: T): PimpGetLayoutData[T] = PimpGetLayoutData(control)
 
   // for JFace viewers
-  case class PimpGetInput[T <: { def getInput : AnyRef; def setInput(input: AnyRef) }](control: T) {
+  case class PimpGetInput[T <: { def getInput() : AnyRef; def setInput(input: AnyRef) }](control: T) {
     def input = control.getInput
     def input_=(input: AnyRef) { control.setInput(input) }
   }
-  implicit def pimpGetInput[T <: { def getInput : AnyRef; def setInput(input: AnyRef) }](control: T): PimpGetInput[T] = PimpGetInput(control)
+  implicit def pimpGetInput[T <: { def getInput() : AnyRef; def setInput(input: AnyRef) }](control: T): PimpGetInput[T] = PimpGetInput(control)
 
   //
   // Event handling here
