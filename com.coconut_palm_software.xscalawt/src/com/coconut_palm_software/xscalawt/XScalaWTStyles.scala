@@ -13,7 +13,8 @@ package com.coconut_palm_software.xscalawt
 import reflect.ClassManifest
 import org.eclipse.swt.widgets.Widget
 import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Display
+
+import scala.language.implicitConversions
 
 object XScalaWTStyles {
 
@@ -83,9 +84,10 @@ object XScalaWTStyles {
     def apply(widget : Widget) {
       styles.foreach(style => style(widget))
       widget.setData(XScalaWTID, this)
-      if (widget.isInstanceOf[Composite]) {
-        val container = widget.asInstanceOf[Composite]
-        container.getChildren.foreach(control => apply(control))
+      widget match {
+        case container: Composite =>
+          container.getChildren.foreach(control => apply(control))
+        case _ =>
       }
     }
   }
@@ -108,5 +110,5 @@ object XScalaWTStyles {
     }
   }
   
-  implicit def widget2widgetStyleClass(widget : Widget) = new WidgetStyleClass(widget)
+  implicit def widget2widgetStyleClass(widget : Widget): WidgetStyleClass = new WidgetStyleClass(widget)
 }

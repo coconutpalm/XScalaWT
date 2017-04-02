@@ -10,17 +10,10 @@
  *******************************************************************************/
 package com.coconut_palm_software.xscalawt
 
-import org.eclipse.swt.widgets.Widget
-import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.layout._
+import com.coconut_palm_software.xscalawt.XScalaWTAPI._
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics._
-
-import XScalaWTAPI._
-
-import java.util.Iterator
-
-import XScalaWTAPI._
+import org.eclipse.swt.widgets.Composite
 
 object XScalaWTForms {
   class CompositeFillHorizontal(parent: Composite, style: Int) extends Composite(parent, style) {
