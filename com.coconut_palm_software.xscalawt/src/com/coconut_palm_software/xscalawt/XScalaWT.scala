@@ -29,7 +29,7 @@ import scala.reflect.macros.blackbox
 object XScalaWT {
   private object XScalaWTMacros {
     def impl[T : c.WeakTypeTag](c: blackbox.Context)
-                               (style: c.Tree)(setups: c.Tree*) = {
+                               (params: c.Tree*)(setups: c.Tree*) = {
       import c.universe._
 
       val t = implicitly[c.WeakTypeTag[T]].tpe
@@ -37,7 +37,7 @@ object XScalaWT {
       q"""
         ($composite: _root_.org.eclipse.swt.widgets.Composite) =>
           _root_.com.coconut_palm_software.xscalawt.XScalaWTAPI.setupAndReturn[$t](
-            new $t($composite, ${c.untypecheck(style)}),
+            new $t($composite, ..${params.map(x => c.untypecheck(x))}),
             ..${setups.map(x => c.untypecheck(x))}
           )
       """
@@ -49,7 +49,7 @@ object XScalaWT {
    * <p>
    * Note, depends on ClassManifest[T] which is still experimental.
    */
-  def *[T](style: Int)(setups: (T => Any)*): Composite => T = macro XScalaWTMacros.impl[T]
+  def *[T](params: Any*)(setups: (T => Any)*): Composite => T = macro XScalaWTMacros.impl[T]
 
   // Convenience methods, one or more per concrete SWT class
 
