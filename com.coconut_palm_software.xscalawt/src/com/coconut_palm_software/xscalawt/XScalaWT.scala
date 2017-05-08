@@ -28,7 +28,7 @@ import scala.reflect.macros.blackbox
 
 object XScalaWT {
   private object XScalaWTMacros {
-    def impl[T : c.WeakTypeTag](c: blackbox.Context)
+    def star_impl[T : c.WeakTypeTag](c: blackbox.Context)
                                (params: c.Tree*)(setups: c.Tree*) = {
       import c.universe._
 
@@ -49,7 +49,7 @@ object XScalaWT {
    * <p>
    * Note, depends on ClassManifest[T] which is still experimental.
    */
-  def *[T](params: Any*)(setups: (T => Any)*): Composite => T = macro XScalaWTMacros.impl[T]
+  def *[T](params: Any*)(setups: (T => Any)*): Composite => T = macro XScalaWTMacros.star_impl[T]
 
   // Convenience methods, one or more per concrete SWT class
 
