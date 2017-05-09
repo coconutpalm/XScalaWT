@@ -27,7 +27,7 @@ object XScalaWTStyles {
       val widget = TermName(c.freshName("widget"))
       val typedWidget = TermName(c.freshName("typedWidget"))
 
-      val body = q"""..${for(setup <- setups) yield q"""$setup($typedWidget)"""}"""
+      val body = q"""..${for(setup <- setups) yield q"""${c.untypecheck(setup)}($typedWidget)"""}"""
       q"""
         ($widget: _root_.org.eclipse.swt.widgets.Widget) =>
           if($widget.isInstanceOf[$t]) {
