@@ -41,15 +41,16 @@ object XScalaWTAPI {
   def setupAndReturn[T](control : T, setups:(T => Any)*) : T = {
     setups.foreach(setup => setup(control))
 
-    if (control.isInstanceOf[Composite]) {
-      val composite = control.asInstanceOf[Composite]
-      if (composite.getLayout().isInstanceOf[GridLayout]) {
-        composite.getChildren.foreach { child =>
-          if (child.getLayoutData == null) {
-            GridDataFactory.defaultsFor(child).applyTo(child)
+    control match {
+      case composite: Composite =>
+        if (composite.getLayout.isInstanceOf[GridLayout]) {
+          composite.getChildren.foreach { child =>
+            if (child.getLayoutData == null) {
+              GridDataFactory.defaultsFor(child).applyTo(child)
+            }
           }
         }
-      }
+      case _ =>
     }
     control
   }

@@ -10,61 +10,61 @@
  *******************************************************************************/
 package com.coconut_palm_software.xscalawt
 
-import reflect.ClassManifest
 import org.eclipse.swt.widgets.Widget
 import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Display
+
+import scala.language.experimental.macros
+import scala.language.implicitConversions
+import scala.reflect.macros.blackbox
 
 object XScalaWTStyles {
+  private object XScalaWTStylesMacros {
+    private def widgetFn[T <: Widget : c.WeakTypeTag](c: blackbox.Context)(setups: c.Tree*)
+                                                     (cb: (c.universe.TermName, c.Tree) => c.Tree) = {
+      import c.universe._
+
+      val t = implicitly[c.WeakTypeTag[T]].tpe
+      val widget = TermName(c.freshName("widget"))
+      val typedWidget = TermName(c.freshName("typedWidget"))
+
+      val body = q"""..${for(setup <- setups) yield q"""${c.untypecheck(setup)}($typedWidget)"""}"""
+      q"""
+        ($widget: _root_.org.eclipse.swt.widgets.Widget) =>
+          if($widget.isInstanceOf[$t]) {
+            val $typedWidget = $widget.asInstanceOf[$t]
+            ${cb(typedWidget, body)}
+          }
+      """
+    }
+
+    def dollar_impl[T <: Widget : c.WeakTypeTag](c: blackbox.Context)(setups: c.Tree*) =
+      widgetFn(c)(setups : _*)((name, tree) => tree)
+
+    def dollar_class_impl[T <: Widget : c.WeakTypeTag](c: blackbox.Context)(nameParam: c.Tree)(setups: c.Tree*) = {
+      import c.universe._
+
+      val name = TermName(c.freshName("name"))
+      q"""
+        val $name = $nameParam
+        ${widgetFn(c)(setups : _*)((typedWidget, tree) => {
+          val id = TermName(c.freshName("id"))
+          q"""
+             val $id = $typedWidget.getData(_root_.com.coconut_palm_software.xscalawt.XScalaWTStyles.XScalaWTClass)
+             if($id != null && $id != $name) $tree
+           """
+        })}
+       """
+    }
+  }
 
   val XScalaWTID = "XSCALAWT_ID"
   val XScalaWTClass = "XSCALAWT_CLASS"
 
   /**
-   * A type for all Style objects
-   */
-  sealed abstract class Style {
-    def apply(control : Widget)
-  }
-  
-  /**
-   * Things like:
-   * $[Composite](
-   *    _.setBackground(green)
-   * )
-   */
-  private class TypedStyle[T <: Widget](val styleType: java.lang.Class[T], selectors:(T => Any)*) 
-    extends Style 
-  {
-    def apply(control : Widget) = {
-      if (styleType.isAssignableFrom(control.getClass))
-        selectors.foreach(selector => selector(control.asInstanceOf[T]))
-    }
-    def getType = styleType
-  }
-  
-  /**
    * Define a style that applies for all subclasses of a particular type
    */
-  def $[T <: Widget : ClassManifest](selectorList:(T => Any)*) : Style = {
-    new TypedStyle[T](classManifest[T].erasure.asInstanceOf[Class[T]], selectorList : _*)
-  }
-
-  /**
-   * Things like:
-   * $class[Text]("Browse-Only") (
-   *   _.setEnabled(false)
-   * )
-   */
-  private class NamedStyle[T <: Widget](val name : String, override val styleType: java.lang.Class[T], val selectors:(T => Any)*) 
-    extends TypedStyle (styleType, selectors : _*)
-  {
-    override def apply(control : Widget) = {
-      val id = control.getData(XScalaWTClass)
-      if (id != null && id == name)
-        super.apply(control)
-    }
-  }
+  def $[T <: Widget](setups: (T => Any)*) : Widget => Unit =
+    macro XScalaWTStylesMacros.dollar_impl[T]
 
   /**
    * Style classes apply to all subclasses of a given type that are assigned a
@@ -72,25 +72,25 @@ object XScalaWTStyles {
    * 
    * Widget#setStyleClass
    */
-  def $class[T <: Widget : ClassManifest](name : String)(selectorList:(T => Any)*) : Style = {
-    new NamedStyle[T](name, classManifest[T].erasure.asInstanceOf[Class[T]], selectorList : _*)
-  }
+  def $class[T <: Widget](nameParam: String)(setups: (T => Any)*) : Widget => Unit =
+    macro XScalaWTStylesMacros.dollar_class_impl[T]
   
   /**
    * Define a stylesheet, which is a collection of styles applied to a widget
    */
-  class Stylesheet(val styles : Style*) {
+  class Stylesheet(val styles : (Widget => Unit)*) {
     def apply(widget : Widget) {
       styles.foreach(style => style(widget))
       widget.setData(XScalaWTID, this)
-      if (widget.isInstanceOf[Composite]) {
-        val container = widget.asInstanceOf[Composite]
-        container.getChildren.foreach(control => apply(control))
+      widget match {
+        case container: Composite =>
+          container.getChildren.foreach(control => apply(control))
+        case _ =>
       }
     }
   }
   
-  def stylesheet(widget : Widget)(styles : Style*) = {
+  def stylesheet(widget : Widget)(styles : (Widget => Unit)*) = {
     val stylesheet = new Stylesheet(styles : _*)
     stylesheet.apply(widget)
   }
@@ -108,5 +108,5 @@ object XScalaWTStyles {
     }
   }
   
-  implicit def widget2widgetStyleClass(widget : Widget) = new WidgetStyleClass(widget)
+  implicit def widget2widgetStyleClass(widget : Widget): WidgetStyleClass = new WidgetStyleClass(widget)
 }
